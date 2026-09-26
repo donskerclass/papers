@@ -1,0 +1,28 @@
+[project]
+name = "paperboard"
+version = "0.1.0"
+description = "A personal daily ranking of new arXiv preprints"
+readme = "README.md"
+authors = [{ name = "Rachel Leah Childers" }]
+requires-python = ">=3.12"
+dependencies = [
+    "fastembed>=0.5",
+    "numpy>=1.26",
+    "pyyaml>=6.0",
+    "requests>=2.31",
+    "scikit-learn>=1.5",
+    "scipy>=1.11",
+    "jinja2>=3.1",
+    "feedparser>=6.0",
+]
+
+[project.scripts]
+paperboard = "paperboard.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.19,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+# Prefer uv-managed CPython (native arm64 on the Mac, not the Rosetta Homebrew build).
+python-preference = "managed"

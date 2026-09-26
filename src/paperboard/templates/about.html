@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}How it works — {{ site.title }}{% endblock %}
+{% block style %}
+main { padding-block: 1.8rem; }
+main h1 { font-size: 1.8rem; }
+main h2 { font-size: 1.2rem; margin-top: 2.2rem; }
+main h3 { font-size: 1rem; margin-top: 1.2rem; }
+main p, main li { max-width: 44rem; }
+table { border-collapse: collapse; font-family: var(--sans); font-size: .88rem; margin-top: .6rem; }
+td, th { text-align: left; padding: .35rem .8rem .35rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+.table-wrap { overflow-x: auto; }
+.interest { margin-top: 1rem; padding-left: .9rem; border-left: 3px solid var(--c-interests); }
+.interest.avoid { border-left-color: var(--rule-strong); }
+.interest h3 { margin: 0; font-size: .95rem; }
+.interest p { margin: .3rem 0 0; color: var(--ink-soft); font-size: .95rem; }
+.w { font-family: var(--mono); font-size: .8rem; color: var(--muted); font-weight: 400; }
+ul.papers { padding-left: 1.1rem; columns: 2 22rem; column-gap: 2rem; font-size: .92rem; }
+ul.papers li { break-inside: avoid; margin-bottom: .25rem; }
+{% endblock %}
+{% block body %}
+<main class="wrap">
+  <p class="eyebrow">Methodology</p>
+  <h1>How it works</h1>
+  <p>Every weekday night, after arXiv's 20:00 US-Eastern announcement, a GitHub Actions job fetches the last
+    {{ run.window_days }} days of new submissions in {{ run.categories|join(", ") }} (including cross-lists), scores each one
+    on four criteria against a profile, and rebuilds this site. Nothing is filtered out: irrelevant papers are just ranked low.</p>
+
+  <h2>The four criteria</h2>
+  <p>Each paper's title and abstract is embedded with <span class="mono">{{ run.model }}</span>, a small model that runs on CPU.
+    Each criterion is then converted to the paper's rank within the run, scaled to [0,&nbsp;1], because raw similarities
+    against different sets live on different scales. The ranks are combined with these weights:</p>
+  <div class="table-wrap"><table>
+    <tr><th>criterion</th><th>what it asks</th><th>weight</th></tr>
+    <tr><td>your work</td><td>weighted maximum cosine similarity to one of my papers</td><td>{{ run.weights.own }}</td></tr>
+    <tr><td>favorites</td><td>weighted maximum cosine similarity to a paper I've listed as a favorite</td><td>{{ run.weights.favorites }}</td></tr>
+    <tr><td>interests</td><td>weighted maximum cosine similarity to one of the interest statements below</td><td>{{ run.weights.interests }}</td></tr>
+    <tr><td>reading</td><td>how much the paper looks like my whole Zotero library ({{ run.library_n }} papers read since grad school):
+      mostly a tf-idf logistic-regression classifier trained to tell my library from a background sample of
+      {{ run.background_n }} arXiv papers in these categories, plus a smaller part for mean similarity to the {{ run.knn_k }} nearest
+      library papers{% if run.library_auc %} (held out, the classifier tells arXiv preprints I've read from ones I haven't with AUC {{ run.library_auc }}){% endif %}</td><td>{{ run.weights.library }}</td></tr>
+  </table></div>
+  <p>A paper that is closer to one of the <em>avoid</em> statements than to any of my papers, favorites or interests loses up to
+    {{ run.avoid_penalty }} from its combined score. It is pushed down, not removed.</p>
+  <p>Before the best match is taken, each profile item's average similarity to that day's papers is subtracted, so a
+    generic item that is moderately close to everything doesn't win every comparison.</p>
+  <p>The highlighted sections at the top show only papers from the latest listing. Each paper appears under the one
+    criterion it ranks highest on, so the sections don't repeat each other. The "why" line under every paper names the
+    profile item that matched best, with its cosine similarity. For the reading criterion it shows the terms that pushed
+    the classifier's score up the most.</p>
+  <p>Only derived data from the library is published: the classifier's vocabulary and coefficients, and embedding
+    vectors. Titles and abstracts of the library stay on my laptop.</p>
+
+  <h2>Interests</h2>
+  {% for i in profile.interests %}
+  <div class="interest"><h3>{{ i.name }} <span class="w">weight {{ i.weight }}</span></h3><p>{{ i.text }}</p></div>
+  {% endfor %}
+  <h3 style="margin-top:1.6rem">Things to push down</h3>
+  {% for i in profile.avoid %}
+  <div class="interest avoid"><h3>{{ i.name }} <span class="w">weight {{ i.weight }}</span></h3><p>{{ i.text }}</p></div>
+  {% endfor %}
+
+  <h2>My papers</h2>
+  <ul class="papers">{% for i in profile.own %}<li>{% if i.url %}<a href="{{ i.url }}">{{ i.name }}</a>{% else %}{{ i.name }}{% endif %} <span class="w">{{ i.weight }}</span></li>{% endfor %}</ul>
+
+  <h2>Favorites</h2>
+  <p>From my year-end "papers I liked" posts and papers I've linked on Bluesky.</p>
+  <ul class="papers">{% for i in profile.favorites %}<li>{% if i.url %}<a href="{{ i.url }}">{{ i.name }}</a>{% else %}{{ i.name }}{% endif %} <span class="w">{{ i.weight }}</span></li>{% endfor %}</ul>
+
+  <h2>Caveats</h2>
+  <p>This is all machine similarity, and it is sometimes wrong. The ranks are relative to one run, so they compare a
+    paper with the others found that week and say nothing more. Listing dates follow arXiv's usual schedule and ignore holidays.</p>
+</main>
+{% endblock %}

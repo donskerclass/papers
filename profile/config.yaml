@@ -1,0 +1,48 @@
+# Settings for the daily run. The profile itself lives in the other files in
+# this folder: own_papers.yaml, favorites.yaml, interests.yaml.
+
+site:
+  title: Papers
+  owner: Rachel Leah Childers
+  homepage: https://donskerclass.github.io
+
+sources:
+  arxiv:
+    # A paper is included if any of its categories (primary or cross-list) is here.
+    # Rough daily volume of new submissions incl. cross-lists: stat.ML ~200,
+    # stat.ME ~90, math.ST ~60, econ.* ~50, stat.CO ~20. Adding cs.LG would add ~600.
+    categories: [stat.ML, econ.EM, stat.ME, math.ST, stat.CO, econ.GN, econ.TH]
+    window_days: 7            # how far back the ranked list reaches
+  # Planned, not yet implemented: repec (EconPapers: computational economics,
+  # econometrics) and semantic_scholar (recommendations seeded by the profile).
+
+embedding:
+  # Small local model run on CPU through fastembed/ONNX. SPECTER is trained on
+  # citations between scientific papers; on my library it beat bge-small,
+  # bge-base-sized nomic and others (see scripts/eval_models.py). Changing it
+  # requires re-running `paperboard build-library` so the library vectors match.
+  model: sentence-transformers/allenai-specter
+  max_chars: 2000             # title + as much abstract as fits
+
+scoring:
+  # Each criterion is rank-normalised within the run to [0, 1], then weighted.
+  weights:
+    own: 0.30                 # similarity to my papers
+    favorites: 0.20           # similarity to favorites
+    interests: 0.25           # similarity to interest statements
+    library: 0.25             # tf-idf classifier + nearest neighbours in the Zotero library
+  # Subtract each profile item's average similarity to the day's papers before
+  # taking the best match, so generic items don't win every comparison.
+  hub_correction: true
+  # tf-idf separates my library from background arXiv much better than embedding
+  # nearest neighbours (held-out AUC ~0.90 vs ~0.75 on arXiv preprints I've read).
+  library_mix: {tfidf: 0.75, knn: 0.25}
+  knn_k: 10
+  # Subtracted (at most this much) when a paper is closer to an `avoid` item than
+  # to every own paper, favorite and interest; full penalty at a cosine gap of avoid_margin.
+  avoid_penalty: 0.3
+  avoid_margin: 0.02
+
+page:
+  per_section: 5              # papers in each highlighted section
+  max_listed: 400             # length of the ranked list

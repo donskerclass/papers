@@ -1,0 +1,75 @@
+name: daily
+
+on:
+  schedule:
+    # arXiv announces at 20:00 US Eastern, Sunday to Thursday evenings, i.e.
+    # 00:00-01:00 UTC Monday to Friday. Run a little after that.
+    - cron: "30 2 * * 1-5"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["profile/**", "src/**", "data/library/**", ".github/workflows/daily.yml"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Cache embedding model
+        uses: actions/cache@v4
+        with:
+          path: .cache/fastembed
+          key: fastembed-${{ hashFiles('profile/config.yaml') }}
+          restore-keys: fastembed-
+
+      - run: uv sync --frozen
+
+      - name: Fetch, score, render
+        run: uv run paperboard run
+        env:
+          # Optional free keys, set as repository secrets if the anonymous tiers get too slow.
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+          S2_API_KEY: ${{ secrets.S2_API_KEY }}
+
+      - name: Save newly resolved profile entries; keep the schedule alive
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- data/profile_cache.json; then
+            git add data/profile_cache.json
+            git commit -m "Cache newly resolved profile entries"
+          elif [ $(( $(date +%s) - $(git log -1 --format=%ct) )) -gt $((45*86400)) ]; then
+            # GitHub disables scheduled workflows after 60 days without activity.
+            git commit --allow-empty -m "Keep the daily schedule active"
+          fi
+          git push || echo "push skipped"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

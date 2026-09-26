@@ -1,0 +1,133 @@
+# My own papers. The "your work" score of a new paper is the weighted maximum
+# cosine similarity between it and these.
+#
+# Each entry needs a title. Give an `arxiv` id or a `doi` when there is one and the
+# abstract is fetched automatically (and cached in data/profile_cache.json);
+# otherwise paste an `abstract` inline. `weight` (default 1.0) scales the
+# similarity: raise it for work that represents what you do now, lower it for
+# older directions, set it to 0 to keep an entry on file but ignore it.
+
+papers:
+  - title: Valid Inference with Imperfect Synthetic Data
+    arxiv: "2508.06635"
+    weight: 1.5
+
+  - title: Online Data Collection for Efficient Semiparametric Inference
+    arxiv: "2411.03195"
+    weight: 1.5
+
+  - title: Efficient Online Estimation of Causal Effects by Deciding What to Observe
+    arxiv: "2108.09265"
+    weight: 1.4
+
+  - title: "Timing as an Action: Learning When to Observe and Act"
+    weight: 1.2
+    abstract: >
+      In standard reinforcement learning setups, the agent receives observations and performs
+      actions at evenly spaced intervals. However, in many real-world settings, observations are
+      expensive, forcing agents to commit to courses of action for designated periods of time.
+      Consider that doctors, after each visit, typically set not only a treatment plan but also a
+      follow-up date at which that plan might be revised. In this work, we formalize the setup of
+      timing-as-an-action. Through theoretical analysis in the tabular setting, we show that while
+      the choice of delay intervals could be naively folded in as part of a composite action, these
+      actions have a special structure and handling them intelligently yields statistical
+      advantages. Taking a model-based perspective, these gains owe to the fact that delay actions
+      do not add any parameters to the underlying model. For model estimation, we provide provable
+      sample-efficiency improvements, and our experiments demonstrate empirical improvements in both
+      healthcare simulators and classical reinforcement learning environments.
+
+  - title: Local Causal Discovery for Estimating Causal Effects
+    arxiv: "2302.08070"
+    weight: 1.2
+
+  - title: Estimating Treatment Effects with Observed Confounders and Mediators
+    arxiv: "2003.11991"
+    weight: 1.2
+
+  - title: Differentiable State Space Models and Hamiltonian Monte Carlo Estimation
+    weight: 1.3
+    abstract: >
+      We propose a methodology to take dynamic stochastic general equilibrium (DSGE) models to the
+      data based on the combination of differentiable state-space models and the Hamiltonian Monte
+      Carlo (HMC) sampler. First, we introduce a method for implicit automatic differentiation of
+      perturbation solutions of DSGE models with respect to the model's parameters. We can use the
+      resulting output for various tasks requiring gradients, such as building an HMC sampler, to
+      estimate first- and second-order approximations of DSGE models. The availability of
+      derivatives also enables a general filter-free method to estimate nonlinear, non-Gaussian DSGE
+      models by sampling the joint likelihood of parameters and latent states. We show that the
+      gradient-based joint likelihood sampling approach is superior in efficiency and robustness to
+      standard Metropolis-Hastings samplers by estimating a canonical real business cycle model, a
+      real small open economy model, and a medium-scale New Keynesian DSGE model.
+
+  - title: Estimating Distributional Responses to Macroeconomic Shocks
+    weight: 1.0
+    url: https://ideas.repec.org/p/red/sed019/1541.html
+    abstract: >
+      A growing literature seeks to understand how inequality changes over the business cycle.
+      Various measures of income dispersion appear to be countercyclical. Our goal is to study the
+      cyclical dynamics of the earnings distribution, but we want to do more than summarize the
+      distribution, conditional on the economy being in expansion or recession. For instance, one
+      might think that dispersion looks different in an expansion caused by a technology shock,
+      compared to an expansion caused by a monetary shock. Likewise, one might think that a given
+      shock has different effects on different conditional distributions, such as the earnings
+      distribution for college graduates and the earnings distribution for high school graduates.
+      We develop tools for measuring how the distribution responds to identified macroeconomic
+      shocks, combining tools from structural time series with tools from non-parametric Bayesian
+      statistics.
+
+  - title: Automated Solution of Heterogeneous Agent Models
+    weight: 1.2
+    abstract: >
+      An analysis of methods for automated solution of heterogeneous agent models with continuously
+      distributed heterogeneity and aggregate shocks based on linearizing the equilibrium conditions
+      with respect to a projection approximation of the cross-sectional distribution and individual
+      agent decision rules. For a broad class of standard dynamic models with sufficient smoothly
+      distributed heterogeneity, the equilibrium conditions can be represented as infinitely wide
+      neural networks based on compositions of pointwise nonlinearities and linear integral
+      operators. This representation ensures commutativity of discretization and differentiation and
+      so enables a method based on linearization with respect to the discretized functions that
+      provably converges as the discretization is refined to the true functional derivatives of the
+      original model. Optimal convergence rates are shown depending on the combination of model
+      features and choice of basis function. The method is illustrated with an application to a
+      version of the incomplete markets model of Huggett (1993) with continuously distributed
+      idiosyncratic and aggregate income risk.
+
+  - title: Solution of Rational Expectations Models with Function Valued States
+    weight: 1.0
+    abstract: >
+      Many variables of interest to economists take the form of time varying distributions or
+      functions. This high dimensional functional data can be interpreted in the context of economic
+      models with function valued endogenous variables, but deriving the implications of these
+      models requires solving a nonlinear system for an infinite dimensional function of infinite
+      dimensional objects. I provide methods for characterizing and numerically approximating the
+      equilibria of DSGE models with function valued variables by linearization in function space
+      and representation using basis functions. These methods permit arbitrary infinite dimensional
+      variation in the state variables, do not impose exclusion restrictions on the relationship
+      between variables or limit their impact to a finite dimensional sufficient statistic, and come
+      with demonstrable guarantees of consistency and polynomial time computational complexity. I
+      demonstrate the theory by computing the solution to a dynamic model of trade, migration, and
+      economic geography.
+
+  - title: Perturbation Methods for Incomplete Markets Economies
+    weight: 1.0
+    abstract: >
+      This paper proposes a perturbation-based algorithm to solve models with both idiosyncratic and
+      aggregate risk and a distribution of agents. The algorithm is described with an application to
+      a version of the canonical model of Krusell and Smith (1998), which features aggregate and
+      idiosyncratic risk, a continuum of agents, and incomplete markets. It proceeds by representing
+      the equilibrium conditions of the model as a system of functional equations, discretizing and
+      linearizing these equations, and solving the resulting finite-dimensional linear model using
+      standard methods. We discuss theoretical convergence properties of the method and present
+      numerical results.
+
+  - title: Computational Methods for Economic Models with Function Valued States
+    weight: 0.8
+    abstract: >
+      Underlying much modern economic theory and econometric methodology is a function space
+      setting. Motivated by this perspective, this dissertation provides a set of tools to construct
+      and solve dynamic economic models with functions as state variables and apply them in models
+      of inequality over space and across individuals. I show how to characterize the solution to
+      function-valued models by linearization in function space, provide a set of algorithms to
+      compute this solution numerically in both regular and ill-posed models, and prove that the
+      algorithms are consistent. The power and efficacy of the methods are illustrated in several
+      examples including a dynamic stochastic model of trade, migration, and economic geography.

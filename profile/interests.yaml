@@ -1,0 +1,146 @@
+# Research interests, written as short documents rather than keyword lists:
+# each `text` is embedded as a whole and compared with every new abstract, so
+# write it the way an abstract in that area would read. The "your interests"
+# score is the best weighted match over these, minus a penalty when a paper
+# looks more like something under `avoid` than like anything here.
+#
+# `name` is shown on the page when that interest is the reason a paper ranked.
+# `weight` (default 1.0) multiplies the similarity. Add, delete, reword freely.
+
+interests:
+  - name: Semiparametric inference and debiased machine learning
+    weight: 1.5
+    text: >
+      Semiparametric efficiency and estimation of low-dimensional functionals with machine-learned
+      nuisance parameters: influence functions and efficient influence function calculus, double
+      or debiased machine learning, orthogonal and Neyman-orthogonal moments, cross-fitting,
+      doubly robust and targeted estimators, automatic debiasing through Riesz representers and
+      Riesz regression, automatic differentiation of influence functions, kernel debiased plug-in
+      estimation, and inference for conditional or heterogeneous effects built on the same
+      machinery. Includes prediction-powered and design-based semi-supervised inference, where
+      model predictions, LLM annotations or synthetic data stand in for missing labels and
+      validity is restored with a small gold-standard sample.
+
+  - name: Adaptive data collection and anytime-valid inference
+    weight: 1.5
+    text: >
+      Statistical inference when data are collected adaptively or sequentially: adaptive
+      experimental design, bandit algorithms used for estimation rather than regret, active and
+      online data collection to estimate a target parameter efficiently, deciding which data
+      source or measurement to acquire under a budget, inference after adaptive experiments,
+      martingale concentration, confidence sequences, e-values and e-processes, safe
+      anytime-valid and game-theoretic inference, and design-based confidence sequences for
+      online experiments.
+
+  - name: Online learning and statistical learning theory
+    weight: 1.2
+    text: >
+      Theory of prediction and learning: online learning and regret minimization against
+      adversarial or nonstationary data, sequential Rademacher complexity, sequential probability
+      assignment and minimax regret under log loss, relaxations and algorithm design from minimax
+      analysis, eluder dimension and decision-estimation coefficients for interactive decision
+      making, and generalization theory for overparameterized models — double descent, benign
+      overfitting and interpolation, PAC-Bayes and compression bounds, algorithmic stability.
+
+  - name: Reinforcement learning, policy learning and off-policy evaluation
+    weight: 1.2
+    text: >
+      Sequential decision making viewed statistically: off-policy evaluation and its
+      semiparametric efficiency, doubly robust and double reinforcement learning, dynamic
+      treatment regimes and optimal treatment allocation, policy learning with welfare or regret
+      guarantees, offline reinforcement learning, sample complexity of model-based RL, costly
+      observation and timing of actions, and reinforcement learning methods for solving
+      economic models and finding equilibria.
+
+  - name: Causal inference and identification in econometrics
+    weight: 1.2
+    text: >
+      Econometric methods for causal effects: identification with instruments, marginal
+      treatment effects and continuous instruments, mediation, front-door and proximal
+      identification, causal discovery and graphical models used to choose adjustment sets,
+      difference-in-differences and event studies with staggered or continuous treatment,
+      synthetic control, partial identification and inference on identified sets, weak
+      identification, and causal interpretation of time series estimands such as impulse
+      responses, local projections and structural VARs.
+
+  - name: Computational methods for heterogeneous agent and dynamic economic models
+    weight: 1.3
+    text: >
+      Numerical solution of dynamic stochastic general equilibrium models with heterogeneous
+      agents and aggregate shocks: HANK, Aiyagari and Krusell-Smith economies, sequence-space
+      Jacobian methods, perturbation and linearization in function space, projection methods and
+      sparse grids, continuous-time models solved as systems of partial differential equations,
+      mean field games, and deep learning and neural network solution methods for
+      high-dimensional dynamic programs, including physics-informed networks, deep BSDE solvers
+      and neural operators.
+
+  - name: Bayesian computation and structural estimation
+    weight: 1.2
+    text: >
+      Estimation of structural economic and statistical models by simulation and sampling:
+      Hamiltonian Monte Carlo, Langevin dynamics and their convergence theory, sampling as
+      optimization through gradient flows and optimal transport, sequential Monte Carlo and
+      particle filters, variational inference and its behaviour under misspecification,
+      differentiable state-space models and probabilistic programming, simulation-based and
+      likelihood-free inference, moment matching and indirect inference, Bayesian workflow and
+      model checking, and Bernstein-von Mises theorems.
+
+  - name: Macroeconometrics and time series
+    weight: 1.0
+    text: >
+      Econometrics for macroeconomic time series: forecasting and nowcasting with large or
+      shifting data, Bayesian VARs and priors for long-run relationships, low-frequency
+      econometrics, local projections versus VARs, identification of structural shocks and
+      impulse responses, distributional and heterogeneous responses to aggregate shocks, and
+      combining micro and macro data to identify aggregate effects of monetary and fiscal policy.
+
+  - name: Kernels, operators and functional data
+    weight: 1.0
+    text: >
+      Learning with infinite-dimensional objects: reproducing kernel Hilbert spaces and kernel
+      mean embeddings, Koopman and transfer operators for dynamical systems, operator learning
+      and neural operators, functional data regression and functional instrumental variables,
+      ill-posed inverse problems and nonparametric IV, and spectral methods — graph Laplacians,
+      diffusion maps and manifold learning.
+
+  - name: Language models as statistical objects
+    weight: 1.0
+    text: >
+      Statistical and theoretical views of large language models and deep learning: in-context
+      learning as statistical estimation, transformers as algorithms, probabilistic inference and
+      sequential Monte Carlo over language model outputs, preference learning, reward modelling
+      and dueling bandits behind RLHF, using LLM outputs and simulations as data for social
+      science with valid inference, and results that change how the field understands why deep
+      learning generalizes.
+
+  - name: Empirical Bayes, shrinkage and decision theory
+    weight: 1.0
+    text: >
+      Compound decision problems and empirical Bayes: nonparametric maximum likelihood for
+      mixing distributions, shrinkage and hierarchical models for many parallel estimates,
+      meta-analysis and aggregating evidence across studies, forecasting with dynamic panels,
+      and statistical decision theory for policy choice under uncertainty.
+
+avoid:
+  - name: Incremental deep learning
+    weight: 1.0
+    text: >
+      A new neural network architecture, training trick, prompting method, agent framework or
+      retrieval-augmented generation pipeline evaluated by accuracy on standard benchmarks, with
+      state-of-the-art results and ablations but no statistical, causal or economic question
+      behind it.
+
+  - name: Domain applications of machine learning
+    weight: 1.0
+    text: >
+      Applying deep learning or standard machine learning to a specific engineering or science
+      domain: medical imaging, remote sensing, wireless networks, traffic and energy load
+      forecasting, fault detection, materials and molecules, genomics, clinical prediction
+      models, speech and computer vision datasets.
+
+  - name: Clinical and biomedical studies
+    weight: 1.0
+    text: >
+      Reports of clinical trials, epidemiological cohort studies, biostatistics for a clinical
+      audience, survival analysis of a particular patient population, pharmacometrics and
+      bioinformatics pipelines.

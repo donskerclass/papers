@@ -1,0 +1,183 @@
+# Papers I liked. The "your favorites" score of a new paper is the weighted
+# maximum cosine similarity between it and these.
+#
+# Same format as own_papers.yaml: a title, plus an `arxiv` id or `doi` if there
+# is one (the abstract is then fetched and cached), or an inline `abstract`.
+# Entries with neither are looked up by title; if that fails the title alone is
+# used. `weight` defaults to 1.0; 0 keeps an entry on file but ignores it.
+#
+# Sources: the year-end lists on donskerclass.github.io (main picks 1.0,
+# "see also" mentions 0.7, 2015-2017 lists 0.8 since interests have moved on),
+# and papers linked from Bluesky posts (0.6).
+
+papers:
+  # --- Papers I Liked 2024 ---
+  - {title: "Cause, Effect, and the Structure of the Social World", source: blog-2024}
+  - {title: "Spectral State Space Models", arxiv: "2312.06837", source: blog-2024}
+  - {title: "A U-turn on Double Descent: Rethinking Parameter Counting in Statistical Learning", arxiv: "2310.18988", source: blog-2024}
+  - {title: "Classical Statistical (In-Sample) Intuitions Don't Generalize Well: A Note on Bias-Variance Tradeoffs, Overfitting and Moving from Fixed to Random Designs", arxiv: "2409.18842", source: blog-2024, weight: 0.7}
+  - {title: "Price Level and Inflation Dynamics in Heterogeneous Agent Economies", source: blog-2024}
+  - {title: "Fiscal Histories", doi: "10.1257/jep.36.4.125", source: blog-2024, weight: 0.7}
+  - {title: "Empirical Bayes for the Reluctant Frequentist", arxiv: "2404.03422", source: blog-2024}
+  - {title: "Simplifying debiased inference via automatic differentiation and probabilistic programming", arxiv: "2405.08675", source: blog-2024, weight: 1.3}
+  - {title: "Semiparametric doubly robust targeted double machine learning: a review", arxiv: "2203.06469", source: blog-2024, weight: 0.7}
+  - {title: "The Minimax Regret of Sequential Probability Assignment, Contextual Shtarkov Sums, and Contextual Normalized Maximum Likelihood", arxiv: "2410.03849", source: blog-2024}
+  - {title: "Revisiting the Phillips and Beveridge Curves: Insights from the 2020s Inflation Surge", source: blog-2024}
+  - {title: "Finding Regularized Competitive Equilibria of Heterogeneous Agent Macroeconomic Models via Reinforcement Learning", arxiv: "2303.04833", source: blog-2024}
+  - {title: "The Trouble with Rational Expectations in Heterogeneous Agent Models: A Challenge for Macroeconomics", source: blog-2024, weight: 0.7}
+  - {title: "(technical work on uniform-in-time confidence sequences)", arxiv: "2103.06476", source: blog-2024, weight: 0.7}
+
+  # --- Papers I Liked 2023 ---
+  - {title: "Eluder Dimension and the Sample Complexity of Optimistic Exploration", source: blog-2023}
+  - {title: "Foundations of Reinforcement Learning and Interactive Decision Making", arxiv: "2312.16730", source: blog-2023, weight: 0.7}
+  - {title: "From Optimization to Sampling Through Gradient Flows", arxiv: "2302.11449", source: blog-2023}
+  - {title: "When Did Growth Begin? New Estimates of Productivity Growth in England from 1250 to 1870", source: blog-2023}
+  - {title: "Neural Operator: Learning Maps Between Function Spaces With Applications to PDEs", arxiv: "2108.08481", source: blog-2023}
+  - {title: "Fit without fear: remarkable mathematical phenomena of deep learning through the prism of interpolation", arxiv: "2105.14368", source: blog-2023}
+  - {title: "PAC-Bayes Compression Bounds So Tight That They Can Explain Generalization", arxiv: "2211.13609", source: blog-2023, weight: 0.7}
+  - {title: "The No Free Lunch Theorem, Kolmogorov Complexity, and the Role of Inductive Biases in Machine Learning", arxiv: "2304.05366", source: blog-2023, weight: 0.7}
+  - {title: "Recent Developments in Machine Learning Methods for Stochastic Control and Games", arxiv: "2303.10257", source: blog-2023}
+  - {title: "Using Imperfect Surrogates for Downstream Inference: Design-based Supervised Learning for Social Science Applications of Large Language Models", arxiv: "2306.04746", source: blog-2023}
+  - {title: "Cross-Prediction-Powered Inference", arxiv: "2309.16598", source: blog-2023, weight: 0.7}
+  - {title: "More power to you: Using machine learning to augment human coding for more efficient inference in text-based randomized trials", arxiv: "2309.13666", source: blog-2023, weight: 0.7}
+  - {title: "Sequential Monte Carlo Steering of Large Language Models using Probabilistic Programs", arxiv: "2306.03081", source: blog-2023}
+  - {title: "The Consensus Game: Language Model Generation via Equilibrium Search", arxiv: "2310.09139", source: blog-2023, weight: 0.7}
+  - {title: "Data Science at the Singularity", arxiv: "2310.00865", source: blog-2023}
+  - {title: "Preference-based Online Learning with Dueling Bandits: A Survey", arxiv: "1807.11398", source: blog-2023}
+
+  # --- Papers I Liked 2021 ---
+  - {title: "Majorizing Measures, Sequential Complexities, and Online Learning", arxiv: "2102.01729", source: blog-2021}
+  - {title: "Sequential complexities and uniform martingale laws of large numbers", doi: "10.1007/s00440-013-0545-5", source: blog-2021, weight: 0.7}
+  - {title: "Eigendecompositions of Transfer Operators in Reproducing Kernel Hilbert Spaces", arxiv: "1712.01572", source: blog-2021}
+  - {title: "Applied Koopmanism", arxiv: "1206.3164", source: blog-2021, weight: 0.7}
+  - {title: "Advances in Nowcasting Economic Activity: Secular Trends, Large Shocks and New Data", source: blog-2021}
+  - {title: "Measuring Price Selection in Microdata: It's Not There", source: blog-2021}
+  - {title: "The Missing Intercept: A Demand Equivalence Approach", doi: "10.1257/aer.20211751", source: blog-2021, weight: 0.7}
+  - {title: "Identification in Macroeconomics", doi: "10.1257/jep.32.3.59", source: blog-2021, weight: 0.7}
+  - {title: "Hicks-Arrow Prices for US Federal Debt 1791-1930", source: blog-2021}
+  - {title: "Difference-in-Differences with multiple time periods", doi: "10.1016/j.jeconom.2020.12.001", source: blog-2021}
+  - {title: "Deep Learning for Individual Heterogeneity", arxiv: "2010.14694", source: blog-2021}
+  - {title: "Demystifying statistical learning based on efficient influence functions", arxiv: "2107.00681", source: blog-2021, weight: 0.7}
+  - {title: "Orthogonal Statistical Learning", arxiv: "1901.09036", source: blog-2021}
+  - {title: "Double/debiased machine learning for treatment and structural parameters", doi: "10.1111/ectj.12097", source: blog-2021, weight: 0.7}
+  - {title: "When do common time series estimands have nonparametric causal meaning?", source: blog-2021}
+  - {title: "Labor Rationing", source: blog-2021}
+
+  # --- Top Papers 2020 ---
+  - {title: "Dynamically Optimal Treatment Allocation", arxiv: "1904.01047", source: blog-2020}
+  - {title: "Optimal Decision Rules for Weak GMM", source: blog-2020}
+  - {title: "Distributional Random Forests: Heterogeneity Adjustment and Multivariate Distributional Regression", arxiv: "2005.14458", source: blog-2020}
+  - {title: "Bayesian Workflow", arxiv: "2011.01808", source: blog-2020}
+  - {title: "Priors for the Long Run", doi: "10.1080/01621459.2018.1483826", source: blog-2020}
+  - {title: "Double Reinforcement Learning for Efficient Off-Policy Evaluation in Markov Decision Processes", arxiv: "1908.08526", source: blog-2020}
+  - {title: "Statistically Efficient Off-Policy Policy Gradients", arxiv: "2002.04014", source: blog-2020, weight: 0.7}
+  - {title: "Doubly Robust Off-Policy Value and Gradient Estimation for Deterministic Policies", arxiv: "2006.03900", source: blog-2020, weight: 0.7}
+  - {title: "Monte Carlo Geometry Processing", doi: "10.1145/3386569.3392374", source: blog-2020}
+  - {title: "Eight Centuries of Global Real Interest Rates, R-G, and the 'Suprasecular' Decline, 1311-2018", source: blog-2020}
+  - {title: "SVAR (Mis)Identification and the Real Effects of Monetary Policy Shocks", doi: "10.1257/mac.20180328", source: blog-2020}
+  - {title: "Variational Bayes under Model Misspecification", arxiv: "1905.10859", source: blog-2020}
+
+  # --- Top Papers 2017 ---
+  - {title: "Earnings and Consumption Dynamics: A Nonlinear Panel Data Framework", doi: "10.3982/ECTA13795", source: blog-2017, weight: 0.8}
+  - {title: "Policy Learning with Observational Data", arxiv: "1702.02896", source: blog-2017, weight: 0.8}
+  - {title: "Faster Rates for Policy Learning", arxiv: "1704.06431", source: blog-2017, weight: 0.6}
+  - {title: "A Machine Learning Approach to Optimal Policy and Taxation", source: blog-2017, weight: 0.8}
+  - {title: "Honest confidence sets in nonparametric IV regression and other ill-posed models", source: blog-2017, weight: 0.8}
+  - {title: "Geometric MCMC for Infinite-Dimensional Inverse Problems", arxiv: "1606.06351", source: blog-2017, weight: 0.8}
+  - {title: "A Conceptual Introduction to Hamiltonian Monte Carlo", arxiv: "1701.02434", source: blog-2017, weight: 0.6}
+  - {title: "MCMC Confidence Sets for Identified Sets", arxiv: "1605.00499", source: blog-2017, weight: 0.8}
+  - {title: "Aggregating Distributional Treatment Effects: A Bayesian Hierarchical Analysis of the Microcredit Literature", source: blog-2017, weight: 0.8}
+  - {title: "Long-Run Covariability", source: blog-2017, weight: 0.8}
+  - {title: "Bayesian Inference on Structural Impulse Response Functions", doi: "10.3982/QE926", source: blog-2017, weight: 0.8}
+  - {title: "Learning Scalable Deep Kernels with Recurrent Structure", arxiv: "1610.08936", source: blog-2017, weight: 0.8}
+  - {title: "Variational Inference: A Review for Statisticians", arxiv: "1601.00670", source: blog-2017, weight: 0.6}
+
+  # --- Top Papers Read in 2015 ---
+  - {title: "Hierarchies of Relaxations for Online Prediction Problems with Evolving Constraints", arxiv: "1503.01212", source: blog-2015, weight: 1.0}
+  - {title: "Why Does Deep Learning Work? - A Perspective From Group Theory", arxiv: "1412.6621", source: blog-2015, weight: 0.8}
+  - {title: "Random Walks on Simplicial Complexes and Harmonics", arxiv: "1310.5099", source: blog-2015, weight: 0.8}
+  - {title: "Operator-valued Kernels for Learning from Functional Response Data", arxiv: "1510.08231", source: blog-2015, weight: 0.8}
+  - {title: "Introduction to regularity structures", arxiv: "1401.3014", source: blog-2015, weight: 0.8}
+  - {title: "Estimation with Aggregate Shocks", arxiv: "1507.04415", source: blog-2015, weight: 0.8}
+  - {title: "Mean field games and applications", source: blog-2015, weight: 0.8}
+  - {title: "Hypoelliptic diffusion maps I: tangent bundles", arxiv: "1503.05459", source: blog-2015, weight: 0.8}
+  - {title: "Instrumental variable estimation in functional linear models", source: blog-2015, weight: 0.8}
+  - {title: "A survey of sequential Monte Carlo methods for economics and finance", source: blog-2015, weight: 0.8}
+  - {title: "Optimal uniform convergence rates and asymptotic normality for series estimators under weak dependence and weak conditions", doi: "10.1016/j.jeconom.2015.03.010", source: blog-2015, weight: 0.8}
+  - {title: "Uniform post-selection inference for least absolute deviation regression and other Z-estimation problems", arxiv: "1304.0282", source: blog-2015, weight: 0.8}
+  - {title: "The Geography of Development: Evaluating Migration Restrictions and Coastal Flooding", source: blog-2015, weight: 0.8}
+
+  # --- Empirical heterogeneous agent models reading list (2018) ---
+  - {title: "Macroeconomics and Household Heterogeneity", source: blog-hank-2018, weight: 0.7}
+  - {title: "The Dynamics of Inequality", doi: "10.3982/ECTA13569", source: blog-hank-2018, weight: 0.7}
+  - {title: "Monetary Policy According to HANK", doi: "10.1257/aer.20160042", source: blog-hank-2018, weight: 0.7}
+  - {title: "Monetary Policy and the Redistribution Channel", doi: "10.1257/aer.20160137", source: blog-hank-2018, weight: 0.7}
+
+  # --- Linked from Bluesky posts (2023-2026) ---
+  - {title: "From Continuous Dynamics to Practical Gradient-Based Samplers", arxiv: "2608.05425", source: bluesky, weight: 0.6}
+  - {title: "A Coreset Selection of Coreset Selection Literature", arxiv: "2505.17799", source: bluesky, weight: 0.6}
+  - {title: "The Incredible Flexibility of Moment Matching", source: bluesky, weight: 0.6}
+  - {title: "Indirect inference and calibration of dynamic stochastic general equilibrium models", source: bluesky, weight: 0.6}
+  - {title: "RieszBoost: Gradient Boosting for Riesz Regression", arxiv: "2501.04871", source: bluesky, weight: 0.6}
+  - {title: "Automatic Debiased Machine Learning of Causal and Structural Effects", doi: "10.3982/ECTA18515", source: bluesky, weight: 0.6}
+  - {title: "Design-Based Confidence Sequences: A General Approach to Risk Mitigation in Online Experimentation", arxiv: "2210.08639", source: bluesky, weight: 0.6}
+  - {title: "Positive Long-Run Capital Taxation: Chamley-Judd Revisited", doi: "10.1257/aer.20150210", source: bluesky, weight: 0.6}
+  - {title: "The Intertemporal Keynesian Cross", doi: "10.1086/732531", source: bluesky, weight: 0.6}
+  - {title: "Game-Theoretic Statistics and Safe Anytime-Valid Inference", doi: "10.1214/23-STS894", source: bluesky, weight: 0.6}
+  - {title: "Debiased Machine Learning U-statistics", arxiv: "2206.05235", source: bluesky, weight: 0.6}
+  - {title: "Cross-Fitting-Free Debiased Machine Learning with Multiway Dependence", arxiv: "2602.11333", source: bluesky, weight: 0.6}
+  - {title: "(statistical learning theory in Lean)", arxiv: "2602.02285", source: bluesky, weight: 0.6}
+  - {title: "Visually Communicating and Teaching Intuition for Influence Functions", arxiv: "1810.03260", source: bluesky, weight: 0.6}
+  - {title: "Economic Predictions with Big Data: The Illusion of Sparsity", doi: "10.3982/ECTA17842", source: bluesky, weight: 0.6}
+  - {title: "Underspecification Presents Challenges for Credibility in Modern Machine Learning", arxiv: "2011.03395", source: bluesky, weight: 0.6}
+  - {title: "Reinforcement Learning: An Overview", arxiv: "2412.05265", source: bluesky, weight: 0.6}
+  - {title: "Higher Order Kernel Mean Embeddings to Capture Filtrations of Stochastic Processes", arxiv: "2109.03582", source: bluesky, weight: 0.6}
+  - {title: "Honest Inference for Stochastic Optimization", arxiv: "2501.07772", source: bluesky, weight: 0.6}
+  - {title: "Bernstein-von Mises theorems for time evolution equations", arxiv: "2407.14781", source: bluesky, weight: 0.6}
+  - {title: "Physics-informed machine learning: A mathematical framework with applications to time series forecasting", arxiv: "2507.08906", source: bluesky, weight: 0.6}
+  - {title: "Strategizing against No-regret Learners", arxiv: "1909.13861", source: bluesky, weight: 0.6}
+  - {title: "Forecasting with Dynamic Panel Data Models", doi: "10.3982/ECTA14952", source: bluesky, weight: 0.6}
+  - {title: "Online Learning via Sequential Complexities", arxiv: "1006.1138", source: bluesky, weight: 0.6}
+  - {title: "(linked 2025-03)", arxiv: "2203.00837", source: bluesky, weight: 0.6}
+  - {title: "Can Machines Learn Weak Signals?", source: bluesky, weight: 0.6}
+  - {title: "An Invitation to Sequential Monte Carlo Samplers", doi: "10.1080/01621459.2022.2087659", source: bluesky, weight: 0.6}
+  - {title: "(HMC within SMC)", arxiv: "1812.07978", source: bluesky, weight: 0.6}
+  - {title: "(confidence sequences for DoubleML)", arxiv: "2408.09598", source: bluesky, weight: 0.6}
+  - {title: "Streamlined mean field variational Bayes for longitudinal and multilevel data analysis", doi: "10.1002/bimj.201500007", source: bluesky, weight: 0.6}
+  - {title: "(Plackett-Luce / Laplacian characterization)", arxiv: "2312.15081", source: bluesky, weight: 0.6}
+  - {title: "Costs of Financing U.S. Federal Debt Under a Gold Standard: 1791-1933", doi: "10.1093/qje/qjae028", source: bluesky, weight: 0.6}
+  - {title: "Why Do People Stay Poor?", doi: "10.1093/qje/qjab045", source: bluesky, weight: 0.6}
+  - {title: "Efficiency of Weighted Average Derivative Estimators and Index Models", doi: "10.2307/2951498", source: bluesky, weight: 0.6}
+  - {title: "Robust causal inference with continuous instruments using the local instrumental variable curve", arxiv: "1607.02566", source: bluesky, weight: 0.6}
+  - {title: "A Practical Introduction to Bayesian Estimation of Causal Effects: Parametric and Nonparametric Approaches", arxiv: "2004.07375", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-12)", arxiv: "2211.16393", source: bluesky, weight: 0.6}
+  - {title: "From LATE to ATE: A Bayesian approach", source: bluesky, weight: 0.6}
+  - {title: "Train faster, generalize better: Stability of stochastic gradient descent", arxiv: "1509.01240", source: bluesky, weight: 0.6}
+  - {title: "Survival Analysis via Ordinary Differential Equations", arxiv: "2009.03449", source: bluesky, weight: 0.6}
+  - {title: "Stabilized Neural Prediction of Potential Outcomes in Continuous Time", arxiv: "2410.03514", source: bluesky, weight: 0.6}
+  - {title: "Graphical criteria for the identification of marginal causal effects in continuous-time survival and event-history analyses", arxiv: "2202.02311", source: bluesky, weight: 0.6}
+  - {title: "Post-selection inference for causal effects after causal discovery", arxiv: "2405.06763", source: bluesky, weight: 0.6}
+  - {title: "The Best of Both Worlds: Combining Randomized Controlled Trials with Structural Modeling", doi: "10.1257/jel.20211652", source: bluesky, weight: 0.6}
+  - {title: "Causal mediation analysis with double machine learning", doi: "10.1093/ectj/utac003", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-11)", doi: "10.1016/j.jeconom.2019.10.009", source: bluesky, weight: 0.6}
+  - {title: "Overidentification in Regular Models", doi: "10.3982/ECTA13559", source: bluesky, weight: 0.6}
+  - {title: "Central Limit Theorems for Smooth Optimal Transport Maps", arxiv: "2312.12407", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-08)", doi: "10.1080/01621459.2021.1923508", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-08)", arxiv: "1909.07862", source: bluesky, weight: 0.6}
+  - {title: "Deep Learning for Economists", arxiv: "2407.15339", source: bluesky, weight: 0.6}
+  - {title: "Adapting Text Embeddings for Causal Inference", arxiv: "1905.12741", source: bluesky, weight: 0.6}
+  - {title: "Potential Outcome and Directed Acyclic Graph Approaches to Causality: Relevance for Empirical Practice in Economics", arxiv: "1907.07271", source: bluesky, weight: 0.6}
+  - {title: "Kernel Debiased Plug-in Estimation: Simultaneous, Automated Debiasing without Influence Functions for Many Target Parameters", arxiv: "2306.08598", source: bluesky, weight: 0.6}
+  - {title: "The influence function of semiparametric estimators", doi: "10.3982/QE826", source: bluesky, weight: 0.6}
+  - {title: "Transformers as Statisticians: Provable In-Context Learning with In-Context Algorithm Selection", arxiv: "2306.04637", source: bluesky, weight: 0.6}
+  - {title: "Universal inference", doi: "10.1073/pnas.1922664117", source: bluesky, weight: 0.6}
+  - {title: "Towards a Complete Analysis of Langevin Monte Carlo: Beyond Poincaré Inequality", arxiv: "2303.03589", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-05)", arxiv: "2201.08349", source: bluesky, weight: 0.6}
+  - {title: "Estimating Vector Fields on Manifolds and the Embedding of Directed Graphs", arxiv: "1406.0013", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-04)", arxiv: "2202.08370", source: bluesky, weight: 0.6}
+  - {title: "Provable Guarantees for Self-Supervised Deep Learning with Spectral Contrastive Loss", arxiv: "2106.04156", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-02)", doi: "10.3982/ECTA13288", source: bluesky, weight: 0.6}
+  - {title: "Generalization of GMM to a Continuum of Moment Conditions", source: bluesky, weight: 0.6}
+  - {title: "(linked 2024-01)", doi: "10.1111/j.1468-0262.2004.00545.x", source: bluesky, weight: 0.6}
+  - {title: "Monopsony in Online Labor Markets", doi: "10.1257/aeri.20180150", source: bluesky, weight: 0.6}
+  - {title: "The Wealthy Hand-to-Mouth", source: bluesky, weight: 0.6}

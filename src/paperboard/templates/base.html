@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ site.title }}{% endblock %}</title>
+<meta name="color-scheme" content="light dark">
+<script>
+try { var t = localStorage.getItem("papers-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<style>
+:root {
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --bg: #fbfaf7; --bg-raised: #f3f1ea; --ink: #1d1c1a; --ink-soft: #45423d; --muted: #6f6a62;
+  --rule: #e3dfd5; --rule-strong: #c9c3b6; --accent: #8a3b12; --accent-soft: #8a3b1214;
+  --new: #2f6b3a; --chip: #ece8de;
+  --c-own: #8a3b12; --c-favorites: #6b4c9a; --c-interests: #1f6a7a; --c-library: #5c6b21;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161514; --bg-raised: #1f1e1c; --ink: #ebe8e1; --ink-soft: #cdc8be; --muted: #9a948a;
+    --rule: #2e2c29; --rule-strong: #47433d; --accent: #e59a6c; --accent-soft: #e59a6c1f;
+    --new: #82c48f; --chip: #2a2826;
+    --c-own: #e59a6c; --c-favorites: #b9a0e3; --c-interests: #79c3d2; --c-library: #b9c77a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161514; --bg-raised: #1f1e1c; --ink: #ebe8e1; --ink-soft: #cdc8be; --muted: #9a948a;
+  --rule: #2e2c29; --rule-strong: #47433d; --accent: #e59a6c; --accent-soft: #e59a6c1f;
+  --new: #82c48f; --chip: #2a2826;
+  --c-own: #e59a6c; --c-favorites: #b9a0e3; --c-interests: #79c3d2; --c-library: #b9c77a;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--serif);
+  font-size: 1.02rem; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: .15em; }
+a:hover { text-decoration-thickness: 2px; }
+.wrap { max-width: 60rem; margin: 0 auto; padding: 0 clamp(1rem, 4vw, 2rem); }
+h1, h2, h3 { font-family: var(--sans); line-height: 1.2; margin: 0; }
+.masthead { border-bottom: 1px solid var(--rule); }
+.masthead .wrap { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: baseline;
+  justify-content: space-between; padding-block: 1rem .8rem; }
+.brand { font-family: var(--sans); font-weight: 700; font-size: 1.15rem; color: var(--ink); text-decoration: none; }
+.brand span { color: var(--muted); font-weight: 500; }
+.nav { display: flex; gap: 1.1rem; align-items: center; font-family: var(--sans); font-size: .88rem; }
+.nav a { color: var(--ink-soft); text-decoration: none; }
+.nav a:hover { color: var(--accent); }
+.theme-toggle { appearance: none; background: none; border: 1px solid var(--rule-strong); color: var(--ink-soft);
+  border-radius: 999px; font: inherit; font-size: .8rem; padding: .1rem .6rem; cursor: pointer; }
+.eyebrow { font-family: var(--sans); font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); }
+.mono { font-family: var(--mono); font-size: .85em; }
+footer { border-top: 1px solid var(--rule); margin-top: 3rem; padding-block: 1.2rem 2rem;
+  font-family: var(--sans); font-size: .82rem; color: var(--muted); }
+{% block style %}{% endblock %}
+</style>
+</head>
+<body>
+<header class="masthead"><div class="wrap">
+  <a class="brand" href="index.html">{{ site.title }} <span>for {{ site.owner }}</span></a>
+  <nav class="nav">
+    <a href="index.html">Today</a>
+    <a href="about.html">How it works</a>
+    <a href="{{ site.homepage }}">Homepage</a>
+    <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Toggle dark mode">◐ theme</button>
+  </nav>
+</div></header>
+{% block body %}{% endblock %}
+<footer><div class="wrap">
+  Built {{ run.built_human }} · {{ run.n_total }} papers from arXiv ({{ run.categories|join(", ") }}) ·
+  ranked on a GitHub Actions runner with a small local embedding model and a tf-idf classifier ·
+  <a href="about.html">how it works</a>
+</div></footer>
+<script>
+document.getElementById("theme-toggle").addEventListener("click", function () {
+  var root = document.documentElement, cur = root.getAttribute("data-theme");
+  if (!cur) cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  var next = cur === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  try { localStorage.setItem("papers-theme", next); } catch (e) {}
+});
+</script>
+{% block script %}{% endblock %}
+</body>
+</html>

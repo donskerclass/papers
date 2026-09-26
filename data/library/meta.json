@@ -1,0 +1,9 @@
+{
+ "embedding_model": "sentence-transformers/allenai-specter",
+ "n_library": 2489,
+ "n_library_with_abstract": 1711,
+ "n_background": 9833,
+ "tfidf_heldout_auc": 0.9235,
+ "tfidf_heldout_auc_arxiv_only": 0.8648,
+ "built": "2026-09-26"
+}
