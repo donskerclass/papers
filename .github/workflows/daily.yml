@@ -6,6 +6,11 @@ on:
     # 00:00-01:00 UTC Monday to Friday. Run a little after that.
     - cron: "30 2 * * 1-5"
   workflow_dispatch:
+    inputs:
+      send_email:
+        description: "Also send the email for this run"
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths: ["profile/**", "src/**", "data/library/**", ".github/workflows/daily.yml"]
@@ -60,6 +65,18 @@ jobs:
           fi
           git push || echo "push skipped"
 
+      - name: Keep the email version for the email job
+        run: |
+          mkdir -p email
+          mv site/email.html site/email_subject.txt email/
+          cp site/index.html "email/papers-$(jq -r .run.latest site/papers.json).html"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: email
+          path: email
+          retention-days: 7
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
@@ -73,3 +90,38 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Emails the day's page to me after nightly runs (not after pushes that only
+  # edit the profile). Needs three repository secrets; see README, "Daily email".
+  # Skipped quietly if they aren't set.
+  email:
+    needs: [build, deploy]
+    if: github.event_name == 'schedule' || inputs.send_email
+    runs-on: ubuntu-latest
+    env:
+      HAVE_SECRETS: ${{ secrets.MAIL_PASSWORD != '' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: email
+          path: email
+
+      - id: msg
+        run: |
+          echo "subject=$(cat email/email_subject.txt)" >> "$GITHUB_OUTPUT"
+          echo "attachment=$(ls email/papers-*.html)" >> "$GITHUB_OUTPUT"
+
+      - name: Send
+        if: env.HAVE_SECRETS == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          from: Papers <${{ secrets.MAIL_USERNAME }}>
+          to: ${{ secrets.MAIL_TO }}
+          subject: ${{ steps.msg.outputs.subject }}
+          html_body: file://email/email.html
+          attachments: ${{ steps.msg.outputs.attachment }}

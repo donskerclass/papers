@@ -1,0 +1,51 @@
+{#- Email version of the page. Email clients drop <script>, most of <style>
+    and <details>, so everything is inline-styled and abstracts are written out.
+    Kept well under Gmail's ~100 KB clipping limit: abstracts only for the
+    highlighted papers, titles only for the rest. -#}
+{%- set ink = "#1d1c1a" %}{% set soft = "#45423d" %}{% set muted = "#6f6a62" %}{% set rule = "#e3dfd5" %}
+{%- set colors = {"own": "#8a3b12", "favorites": "#6b4c9a", "interests": "#1f6a7a", "library": "#5c6b21"} %}
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ subject }}</title></head>
+<body style="margin:0;padding:0;background:#fbfaf7;">
+<div style="max-width:680px;margin:0 auto;padding:20px 16px;font-family:Georgia,'Iowan Old Style',Palatino,serif;color:{{ ink }};font-size:15px;line-height:1.5;">
+
+  <p style="margin:0;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:{{ muted }};">arXiv listing of {{ run.latest_human }}</p>
+  <h1 style="margin:4px 0 6px;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:22px;line-height:1.2;">New preprints, ranked for me</h1>
+  <p style="margin:0 0 4px;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:13px;color:{{ muted }};">
+    <b style="color:{{ ink }};">{{ run.n_new }}</b> in the latest listing · <b style="color:{{ ink }};">{{ run.n_total }}</b> in the last {{ run.window_days }} days ·
+    <a href="{{ site.url }}" style="color:#8a3b12;">open the site</a> (the full page is also attached)</p>
+
+  {% for s in sections %}
+  <h2 style="margin:26px 0 0;padding-bottom:4px;border-bottom:2px solid {{ colors[s.key] }};font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;color:{{ colors[s.key] }};">
+    {{ s.title }} <span style="font-weight:400;font-size:12px;color:{{ muted }};">{{ s.blurb }}</span></h2>
+    {% for p in s.papers %}
+    {%- set w = p.why[s.key] %}
+    <div style="padding:10px 0;border-bottom:1px solid {{ rule }};">
+      <a href="{{ p.url }}" style="color:{{ ink }};text-decoration:none;font-weight:bold;font-size:16px;line-height:1.3;">{{ p.title }}</a>
+      <div style="color:{{ soft }};font-size:13px;margin-top:2px;">{{ p.authors[:6]|join(", ") }}{% if p.authors|length > 6 %}, et al.{% endif %}</div>
+      <div style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;color:{{ muted }};margin-top:2px;">
+        #{{ p.rank }} this week · {{ p.categories|select("in", run.categories)|join(", ") or p.primary }} ·
+        <i>{%- if s.key == "own" %}near your “{{ w.item }}”{% elif s.key == "favorites" %}near “{{ w.item }}”{% elif s.key == "interests" %}{{ w.item }}{% else %}{{ w.terms|join(", ") if w.terms else "like your library" }}{% endif %}</i>
+        · <a href="https://arxiv.org/pdf/{{ p.arxiv }}" style="color:#8a3b12;">pdf</a></div>
+      <p style="margin:6px 0 0;color:{{ soft }};font-size:14px;">{{ p.abstract }}</p>
+    </div>
+    {% else %}
+    <p style="color:{{ muted }};font-style:italic;">Nothing in the latest listing ranked highest on this.</p>
+    {% endfor %}
+  {% endfor %}
+
+  <h2 style="margin:28px 0 0;padding-bottom:4px;border-bottom:1px solid {{ rule }};font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;">Top {{ top|length }} of the week</h2>
+  <ol style="margin:8px 0 0;padding-left:26px;">
+    {% for p in top %}
+    <li style="margin:0 0 6px;"><a href="{{ p.url }}" style="color:{{ ink }};text-decoration:none;">{{ p.title }}</a>
+      <span style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;color:{{ muted }};"> — {{ p.surnames[:3]|join(", ") }}{% if p.surnames|length > 3 %} et al.{% endif %} · {{ p.announced_human }}{% if p.is_new %} · <b style="color:#2f6b3a;">new</b>{% endif %}</span></li>
+    {% endfor %}
+  </ol>
+
+  <p style="margin:28px 0 0;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;font-size:12px;color:{{ muted }};">
+    Built {{ run.built_human }}. <a href="{{ site.url }}about.html" style="color:#8a3b12;">How it works</a>.</p>
+</div>
+</body>
+</html>

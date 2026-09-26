@@ -46,6 +46,31 @@ uv run paperboard run      # writes site/index.html
 open site/index.html
 ```
 
+## Daily email
+
+After each nightly run the workflow emails the day's page: the four highlight
+sections with abstracts and the top of the week's list in the body, and the
+full page attached as `papers-YYYY-MM-DD.html` (dated by arXiv listing) for the
+record. It is sent from my Gmail account to itself over SMTP; pushes that only
+edit the profile don't send mail. A manual run sends mail only if "Also send the
+email" is ticked.
+
+One-time setup:
+
+1. Turn on 2-Step Verification for the Google account, then create an app
+   password at <https://myaccount.google.com/apppasswords> (name it "papers").
+2. Store three repository secrets (each command prompts for the value, so nothing
+   lands in shell history or in the repo):
+
+   ```sh
+   gh secret set MAIL_USERNAME --repo donskerclass/papers   # the Gmail address
+   gh secret set MAIL_TO       --repo donskerclass/papers   # where to send it (same address)
+   gh secret set MAIL_PASSWORD --repo donskerclass/papers   # the 16-character app password
+   ```
+
+Until the secrets exist the email job skips itself. To revoke, delete the app
+password in the Google account.
+
 ## Optional API keys
 
 Everything works without keys. Abstract lookups use arXiv, Crossref and

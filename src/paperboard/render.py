@@ -72,6 +72,12 @@ def render(papers: list[dict], profile: dict, cfg: dict, library_meta: dict | No
     sections = build_sections(papers, cfg["page"].get("per_section", 5))
     (SITE / "index.html").write_text(env.get_template("index.html").render(**ctx, sections=sections, listed=listed))
     (SITE / "about.html").write_text(env.get_template("about.html").render(**ctx))
+    # Email version (sent by the workflow on scheduled runs) and its subject line.
+    subject = f"Papers: arXiv listing of {dt.date.fromisoformat(latest):%a %-d %b} ({run['n_new']} new)"
+    top = papers[: cfg.get("email", {}).get("top_n", 30)]
+    (SITE / "email.html").write_text(env.get_template("email.html").render(
+        **ctx, sections=sections, top=top, subject=subject))
+    (SITE / "email_subject.txt").write_text(subject)
     # Machine-readable copy of the run, for later analysis or other front ends.
     keep = ("arxiv", "title", "authors", "categories", "primary", "announced", "score", "ranks", "raw", "why", "penalty")
     (SITE / "papers.json").write_text(json.dumps({"run": run, "papers": [{k: p.get(k) for k in keep} for p in papers]}))

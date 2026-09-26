@@ -5,6 +5,7 @@ site:
   title: Papers
   owner: Rachel Leah Childers
   homepage: https://donskerclass.github.io
+  url: https://donskerclass.github.io/papers/
 
 sources:
   arxiv:
@@ -46,3 +47,7 @@ scoring:
 page:
   per_section: 5              # papers in each highlighted section
   max_listed: 400             # length of the ranked list
+
+email:
+  # Sent after each scheduled (nightly) run. Setup: see README, "Daily email".
+  top_n: 30                   # titles from the week's ranked list below the highlights
