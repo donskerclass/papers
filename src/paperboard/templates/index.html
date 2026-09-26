@@ -27,6 +27,7 @@
 <li class="hl-item">
   <a class="hl-title" href="{{ p.url }}">{{ p.title }}</a>
   <span class="hl-authors">{{ p.surnames[:4]|join(", ") }}{% if p.surnames|length > 4 %} et al.{% endif %}</span>
+  <details class="hl-abstract"><summary>Abstract</summary><p class="abstract">{{ p.abstract }}</p></details>
   <span class="hl-meta">
     {{ meter(p) }}
     <a class="hl-jump" href="#p-{{ p.arxiv }}" title="Abstract and details in the ranked list">#{{ p.rank }} ↓</a>
@@ -79,6 +80,8 @@ section.highlight .blurb { font-family: var(--sans); font-size: .78rem; color: v
 .hl-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; margin-top: .15rem;
   font-family: var(--sans); font-size: .76rem; color: var(--muted); }
 .hl-jump { font-family: var(--mono); text-decoration: none; }
+.hl-abstract { margin-top: .2rem; }
+.hl-abstract .abstract { font-size: .9rem; margin-top: .3rem; }
 .hl-because { font-style: italic; }
 .paper:target { background: var(--accent-soft); }
 .sec-own { --sec: var(--c-own); } .sec-favorites { --sec: var(--c-favorites); }
