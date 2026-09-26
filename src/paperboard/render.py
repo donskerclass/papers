@@ -41,6 +41,9 @@ def render(papers: list[dict], profile: dict, cfg: dict, library_meta: dict | No
         # Reasons ordered by how highly the paper ranks on each criterion.
         p["why_order"] = sorted((c for c in p["why"] if c in p["ranks"]), key=lambda c: -p["ranks"][c])[:3]
     papers.sort(key=lambda p: -p["score"])
+    for i, p in enumerate(papers, 1):
+        p["rank"] = i
+        p["surnames"] = [a.split()[-1] for a in p["authors"]]
 
     counts = Counter(p["announced"] for p in papers)
     now = dt.datetime.now(dt.timezone.utc)
