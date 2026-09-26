@@ -31,7 +31,7 @@ S2_KEY = os.environ.get("S2_API_KEY", "")
 
 
 _last_call: dict[str, float] = {}
-MIN_INTERVAL = {"export.arxiv.org": 4.0, "api.semanticscholar.org": 1.2, "api.crossref.org": 0.5}
+MIN_INTERVAL = {"export.arxiv.org": 4.0, "oaipmh.arxiv.org": 3.0, "api.semanticscholar.org": 1.2, "api.crossref.org": 0.5}
 
 
 def _throttle(url: str) -> None:
@@ -155,16 +155,8 @@ def parse_arxiv_entry(e) -> dict:
 
 
 def arxiv_by_ids(ids: list[str]) -> dict[str, dict]:
-    out = {}
-    for i in range(0, len(ids), 100):
-        chunk = ids[i:i + 100]
-        r = _get(ARXIV_API, params={"id_list": ",".join(chunk), "max_results": len(chunk)})
-        if r is not None:
-            for e in feedparser.parse(r.text).entries:
-                if "title" in e and e.title != "Error":
-                    rec = parse_arxiv_entry(e)
-                    out[rec["arxiv"]] = rec
-    return out
+    from .arxiv_source import get_records  # OAI-PMH: the search API is closed to cloud machines
+    return get_records(ids)
 
 
 # --- Semantic Scholar ----------------------------------------------------------
@@ -250,6 +242,8 @@ def openalex_by_title(title: str, min_ratio: float = 0.9) -> dict | None:
 
 
 def arxiv_by_title(title: str, min_ratio: float = 0.9) -> dict | None:
+    if os.environ.get("GITHUB_ACTIONS"):
+        return None  # arXiv's search API refuses GitHub's runners; would only time out
     words = norm_title(title).split()[:14]
     q = " AND ".join(f"ti:{w}" for w in words if len(w) > 2)
     r = _get(ARXIV_API, params={"search_query": q, "max_results": 5}, tries=3)
