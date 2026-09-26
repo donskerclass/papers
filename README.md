@@ -51,25 +51,28 @@ open site/index.html
 After each nightly run the workflow emails the day's page: the four highlight
 sections with abstracts and the top of the week's list in the body, and the
 full page attached as `papers-YYYY-MM-DD.html` (dated by arXiv listing) for the
-record. It is sent from my Gmail account to itself over SMTP; pushes that only
+record. It is sent through Resend or Gmail (see below); pushes that only
 edit the profile don't send mail. A manual run sends mail only if "Also send the
 email" is ticked.
 
-One-time setup:
+One-time setup, either option (the workflow uses Resend if its key is set,
+otherwise Gmail; with neither, the email job skips itself). Each `gh secret set`
+prompts for the value, so nothing lands in shell history or in the repo.
 
-1. Turn on 2-Step Verification for the Google account, then create an app
-   password at <https://myaccount.google.com/apppasswords> (name it "papers").
-2. Store three repository secrets (each command prompts for the value, so nothing
-   lands in shell history or in the repo):
+**Option A, Resend** (free tier, 3,000 emails/month; works for any account):
 
-   ```sh
-   gh secret set MAIL_USERNAME --repo donskerclass/papers   # the Gmail address
-   gh secret set MAIL_TO       --repo donskerclass/papers   # where to send it (same address)
-   gh secret set MAIL_PASSWORD --repo donskerclass/papers   # the 16-character app password
-   ```
+1. Sign up at <https://resend.com> with the address the email should go to, and
+   create an API key (permission "Sending access" is enough).
+2. `gh secret set RESEND_API_KEY --repo donskerclass/papers` and
+   `gh secret set MAIL_TO --repo donskerclass/papers` (the sign-up address).
 
-Until the secrets exist the email job skips itself. To revoke, delete the app
-password in the Google account.
+**Option B, Gmail SMTP** (needs 2-Step Verification, which is what makes the
+app-passwords page available):
+
+1. Create an app password at <https://myaccount.google.com/apppasswords>.
+2. `gh secret set MAIL_USERNAME`, `MAIL_TO` and `MAIL_PASSWORD` (each with
+   `--repo donskerclass/papers`): the Gmail address, the destination, and the
+   16-character app password.
 
 ## Optional API keys
 

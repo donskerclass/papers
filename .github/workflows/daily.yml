@@ -99,7 +99,8 @@ jobs:
     if: github.event_name == 'schedule' || inputs.send_email
     runs-on: ubuntu-latest
     env:
-      HAVE_SECRETS: ${{ secrets.MAIL_PASSWORD != '' }}
+      HAVE_SMTP: ${{ secrets.MAIL_PASSWORD != '' }}
+      HAVE_RESEND: ${{ secrets.RESEND_API_KEY != '' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -111,8 +112,37 @@ jobs:
           echo "subject=$(cat email/email_subject.txt)" >> "$GITHUB_OUTPUT"
           echo "attachment=$(ls email/papers-*.html)" >> "$GITHUB_OUTPUT"
 
-      - name: Send
-        if: env.HAVE_SECRETS == 'true'
+      # Option 1: Resend (free tier), used when RESEND_API_KEY is set. Without a
+      # verified domain Resend sends from onboarding@resend.dev, and only to the
+      # address the Resend account was created with.
+      - name: Send via Resend
+        if: env.HAVE_RESEND == 'true'
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          SUBJECT: ${{ steps.msg.outputs.subject }}
+          ATTACHMENT: ${{ steps.msg.outputs.attachment }}
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, pathlib, urllib.request
+          att = pathlib.Path(os.environ["ATTACHMENT"])
+          body = {
+              "from": "Papers <onboarding@resend.dev>",
+              "to": [os.environ["MAIL_TO"]],
+              "subject": os.environ["SUBJECT"],
+              "html": pathlib.Path("email/email.html").read_text(),
+              "attachments": [{"filename": att.name, "content": base64.b64encode(att.read_bytes()).decode()}],
+          }
+          req = urllib.request.Request("https://api.resend.com/emails", data=json.dumps(body).encode(),
+              headers={"Authorization": "Bearer " + os.environ["RESEND_API_KEY"],
+                       "Content-Type": "application/json", "User-Agent": "paperboard"})
+          print(urllib.request.urlopen(req).read().decode())
+          PY
+
+      # Option 2: Gmail SMTP with an app password, used when MAIL_PASSWORD is set
+      # (and Resend isn't).
+      - name: Send via Gmail
+        if: env.HAVE_SMTP == 'true' && env.HAVE_RESEND != 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
