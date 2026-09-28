@@ -3,8 +3,13 @@ name: daily
 on:
   schedule:
     # arXiv announces at 20:00 US Eastern, Sunday to Thursday evenings, i.e.
-    # 00:00-01:00 UTC Monday to Friday. Run a little after that.
-    - cron: "30 2 * * 1-5"
+    # 00:00-01:00 UTC Monday to Friday. Run a little after that. GitHub's
+    # schedule is best effort (it silently dropped the first Monday run), so
+    # there are backup times; the `check` job makes a backup exit early once
+    # the day's listing is already live. Off-the-hour minutes are dropped less.
+    - cron: "17 2 * * 1-5"
+    - cron: "37 3 * * 1-5"
+    - cron: "23 6 * * 1-5"
   workflow_dispatch:
     inputs:
       send_email:
@@ -25,8 +30,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  # For scheduled runs: is the live page already showing today's listing (arXiv
+  # labels each listing with the UTC date of its announcement)?
+  check:
     runs-on: ubuntu-latest
+    outputs:
+      live_latest: ${{ steps.live.outputs.latest }}
+      go: ${{ steps.live.outputs.go }}
+    steps:
+      - id: live
+        run: |
+          latest=$(curl -sf --retry 3 https://donskerclass.github.io/papers/papers.json | python3 -c 'import json,sys; print(json.load(sys.stdin)["run"]["latest"])' || echo none)
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = schedule ] && [ "$latest" = "$(date -u +%F)" ]; then
+            echo "Today's listing is already live; nothing to do."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: check
+    if: needs.check.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      latest: ${{ steps.latest.outputs.latest }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -66,7 +94,9 @@ jobs:
           git push || echo "push skipped"
 
       - name: Keep the email version for the email job
+        id: latest
         run: |
+          echo "latest=$(jq -r .run.latest site/papers.json)" >> "$GITHUB_OUTPUT"
           mkdir -p email
           mv site/email.html site/email_subject.txt email/
           cp site/index.html "email/papers-$(jq -r .run.latest site/papers.json).html"
@@ -94,9 +124,13 @@ jobs:
   # Emails the day's page to me after nightly runs (not after pushes that only
   # edit the profile). Needs three repository secrets; see README, "Daily email".
   # Skipped quietly if they aren't set.
+  # Scheduled runs email only a listing that is newer than what was live
+  # (if arXiv's feed hadn't updated yet, a later backup run picks it up).
   email:
-    needs: [build, deploy]
-    if: github.event_name == 'schedule' || inputs.send_email
+    needs: [check, build, deploy]
+    if: >-
+      (github.event_name == 'schedule' && needs.build.outputs.latest != needs.check.outputs.live_latest)
+      || inputs.send_email
     runs-on: ubuntu-latest
     env:
       HAVE_SMTP: ${{ secrets.MAIL_PASSWORD != '' }}
