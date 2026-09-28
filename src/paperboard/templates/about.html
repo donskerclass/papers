@@ -22,8 +22,9 @@ ul.papers li { break-inside: avoid; margin-bottom: .25rem; }
 <main class="wrap">
   <p class="eyebrow">Methodology</p>
   <h1>How it works</h1>
-  <p>Every weekday night, after arXiv's 20:00 US-Eastern announcement, a GitHub Actions job fetches the last
-    {{ run.window_days }} days of new submissions in {{ run.categories|join(", ") }} (including cross-lists), scores each one
+  <p>Every weekday night, after arXiv's 20:00 US-Eastern announcement, a GitHub Actions job fetches the papers announced in
+    the last {{ run.window_days }} days of listings in {{ run.categories|join(", ") }} (new submissions, including cross-lists, and
+    papers released late from moderation, dated by the listing they actually appeared in), scores each one
     on four criteria against a profile, and rebuilds this site. Nothing is filtered out: irrelevant papers are just ranked low.</p>
 
   <h2>The four criteria</h2>
@@ -69,6 +70,7 @@ ul.papers li { break-inside: avoid; margin-bottom: .25rem; }
 
   <h2>Caveats</h2>
   <p>This is all machine similarity, and it is sometimes wrong. The ranks are relative to one run, so they compare a
-    paper with the others found that week and say nothing more. Listing dates follow arXiv's usual schedule and ignore holidays.</p>
+    paper with the others found that week and say nothing more. Papers first announced in
+    another category and cross-listed into these categories later don't appear.</p>
 </main>
 {% endblock %}

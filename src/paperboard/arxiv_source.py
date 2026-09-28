@@ -4,16 +4,26 @@ Harvested through arXiv's OAI-PMH interface (oaipmh.arxiv.org), not the search
 API: the search API refuses requests from cloud machines such as GitHub's
 runners (HTTP 406), while OAI-PMH is arXiv's supported bulk-metadata route.
 Each watched category is an OAI set (``stat.ML`` -> ``stat:stat:ML``) that
-includes cross-lists. Records changed since the start of the window are
-fetched, and only papers whose first version falls in the window are kept, so
-replacements of old papers are skipped.
+includes cross-lists.
 
-Each paper gets the date of the daily listing it appeared in, computed from
-arXiv's schedule: submissions up to 14:00 US Eastern on a weekday are
-announced that evening at 20:00, and Thursday-to-Friday submissions are
-announced on Sunday evening. arXiv labels each listing with the following
-day's date (Sunday evening's is "Monday"), and so does this. Holidays are
-ignored, which at worst files a paper a day off.
+Each paper gets the date of the daily listing it was announced in, which is
+not what the submission time predicts: about a quarter of a stat listing is
+papers held in moderation for days or weeks. Two facts about arXiv give the
+date exactly instead:
+
+- New ids are handed out in announcement order, so a later listing's papers
+  have higher ids than an earlier one's.
+- A record's OAI datestamp is the UTC date of its last change, which is never
+  before its announcement; for a paper nobody has touched since, it is the
+  listing date itself (arXiv dates listings by the UTC day they go out).
+
+So a paper's listing date is the earliest datestamp among all records with the
+same or a higher id. Replacements and metadata edits only move datestamps
+later, and old papers' low ids tie them to dates before the window. Checked
+against arXiv's own /list/stat/pastweek pages for five listings (453 papers):
+all but 5 dated correctly, none misdated, nothing extra. The 5 were cross-lists
+added to papers first announced elsewhere days or months earlier; those are
+missed.
 """
 
 from __future__ import annotations
@@ -23,24 +33,29 @@ import email.utils
 import re
 import unicodedata
 import xml.etree.ElementTree as ET
-from zoneinfo import ZoneInfo
 
 from . import resolve
 
-EASTERN = ZoneInfo("America/New_York")
 OAI = "https://oaipmh.arxiv.org/oai"
 NS = {"oai": "http://www.openarchives.org/OAI/2.0/", "raw": "http://arxiv.org/OAI/arXivRaw/"}
 
 
-def listing_date(published: str) -> dt.date:
-    t = dt.datetime.fromisoformat(published.replace("Z", "+00:00")).astimezone(EASTERN)
-    d = t.date()
-    # First weekday cutoff (14:00 ET) at or after the submission time.
-    while d.weekday() >= 5 or (d == t.date() and t.time() >= dt.time(14, 0)):
-        d += dt.timedelta(days=1)
-    # Announced that evening (a Friday cutoff on Sunday evening); arXiv dates the
-    # listing by the next day, so Mon-Thu cutoffs list Tue-Fri and Friday's lists Monday.
-    return d + dt.timedelta(days=3 if d.weekday() == 4 else 1)
+def _id_key(aid: str) -> tuple[int, int] | None:
+    """Sort key for new-style ids (2609.30274); None for old ones (math/0501001)."""
+    m = re.fullmatch(r"(\d{4})\.(\d{4,5})", aid)
+    return (int(m[1]), int(m[2])) if m else None
+
+
+def listing_dates(records: list[dict]) -> dict[str, str]:
+    """arXiv id -> date of the listing it was announced in (see module docstring).
+    Needs records with datestamps from before the window, so that old papers
+    edited recently get dated before it too."""
+    dated = sorted((r for r in records if _id_key(r["arxiv"])), key=lambda r: _id_key(r["arxiv"]))
+    out, earliest = {}, "9999-99-99"
+    for r in reversed(dated):
+        earliest = min(earliest, r["datestamp"])
+        out[r["arxiv"]] = earliest
+    return out
 
 
 # --- TeX accents in arXivRaw author lists and titles -> Unicode ---------------
@@ -119,9 +134,14 @@ def _oai_set(category: str) -> str:
 
 
 def fetch(categories: list[str], window_days: int, log=print) -> list[dict]:
-    now = dt.datetime.now(dt.timezone.utc)
-    start = now - dt.timedelta(days=window_days + 1)
-    papers: dict[str, dict] = {}
+    """Papers announced in the listings of the last `window_days` days (UTC),
+    today's included: 7 days is the last five listings, like arXiv's "pastweek"."""
+    today = dt.datetime.now(dt.timezone.utc).date()
+    first = today - dt.timedelta(days=window_days - 1)
+    # Harvest from a week earlier so there are records dated before the window
+    # (listing_dates needs them, even across arXiv's holiday breaks).
+    start = first - dt.timedelta(days=7)
+    records: dict[str, dict] = {}
     for cat in categories:
         params = {"verb": "ListRecords", "metadataPrefix": "arXivRaw",
                   "set": _oai_set(cat), "from": f"{start:%Y-%m-%d}"}
@@ -138,14 +158,21 @@ def fetch(categories: list[str], window_days: int, log=print) -> list[dict]:
                 break
             lr = root.find("oai:ListRecords", NS)
             for rec in lr.findall("oai:record", NS):
-                p = _record(rec)
                 n_seen += 1
-                if p and dt.datetime.fromisoformat(p["published"].replace("Z", "+00:00")) >= start:
-                    p["announced"] = listing_date(p["published"]).isoformat()
-                    papers[p["arxiv"]] = p
+                if p := _record(rec):
+                    p["datestamp"] = rec.findtext("oai:header/oai:datestamp", "", NS)
+                    records[p["arxiv"]] = p
             token = (lr.findtext("oai:resumptionToken", "", NS) or "").strip()
             if not token:
                 break
             params = {"verb": "ListRecords", "resumptionToken": token}
-        log(f"arXiv {cat}: {n_seen} records changed since {start:%Y-%m-%d}; {len(papers)} new papers so far")
-    return list(papers.values())
+        log(f"arXiv {cat}: {n_seen} records changed since {start:%Y-%m-%d}")
+    dates = listing_dates(list(records.values()))
+    papers = []
+    for aid, d in dates.items():
+        if d >= first.isoformat():
+            p = records[aid]
+            p["announced"] = d
+            papers.append(p)
+    log(f"{len(records)} records, {len(papers)} announced since {first:%Y-%m-%d}")
+    return papers
