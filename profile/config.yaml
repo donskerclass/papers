@@ -10,9 +10,13 @@ site:
 sources:
   arxiv:
     # A paper is included if any of its categories (primary or cross-list) is here.
+    # All of stat (math.ST is stat.TH's canonical name) plus econometrics. econ.GN
+    # and econ.TH were dropped: arXiv's general economics is a thin, uneven sample
+    # that abstract similarity doesn't screen well; wait for a RePEc source instead.
     # Rough daily volume of new submissions incl. cross-lists: stat.ML ~200,
-    # stat.ME ~90, math.ST ~60, econ.* ~50, stat.CO ~20. Adding cs.LG would add ~600.
-    categories: [stat.ML, econ.EM, stat.ME, math.ST, stat.CO, econ.GN, econ.TH]
+    # stat.ME ~90, math.ST ~60, stat.AP ~50, stat.CO ~20, econ.EM ~15, stat.OT ~5.
+    # Adding cs.LG would add ~600.
+    categories: [stat.ML, stat.ME, math.ST, stat.AP, stat.CO, stat.OT, econ.EM]
     window_days: 7            # how far back the ranked list reaches
   # Planned, not yet implemented: repec (EconPapers: computational economics,
   # econometrics) and semantic_scholar (recommendations seeded by the profile).
@@ -46,8 +50,8 @@ scoring:
 
 page:
   per_section: 5              # papers in each highlighted section
-  max_listed: 400             # length of the ranked list
+  max_per_day: 400            # most papers listed from any one day's listing
 
 email:
   # Sent after each scheduled (nightly) run. Setup: see README, "Daily email".
-  top_n: 30                   # titles from the week's ranked list below the highlights
+  top_n: 30                   # titles from the latest listing's ranked list below the highlights

@@ -30,7 +30,7 @@
   <details class="hl-abstract"><summary>Abstract</summary><p class="abstract">{{ p.abstract }}</p></details>
   <span class="hl-meta">
     {{ meter(p) }}
-    <a class="hl-jump" href="#p-{{ p.arxiv }}" title="Abstract and details in the ranked list">#{{ p.rank }} ↓</a>
+    <a class="hl-jump" href="#p-{{ p.arxiv }}" title="Rank in this listing; abstract and details in the ranked list">#{{ p.day_rank }} ↓</a>
     <span class="hl-because">
     {%- if key == "own" %}near your “{{ w.item }}”
     {%- elif key == "favorites" %}near “{{ w.item }}”
@@ -41,11 +41,13 @@
 </li>
 {%- endmacro %}
 
-{% macro paper(p, rank=None) -%}
+{#- The rank shown is within the paper's own listing day; the script switches it
+    to the rank in the whole window when the week view is selected. -#}
+{% macro paper(p) -%}
 <article class="paper{{ ' is-new' if p.is_new else '' }}" id="p-{{ p.arxiv }}" data-date="{{ p.announced }}" data-cats="{{ p.categories|join(' ') }}"
-  data-new="{{ 1 if p.is_new else 0 }}" data-text="{{ (p.title ~ ' ' ~ p.authors|join(' '))|lower }}">
+  data-new="{{ 1 if p.is_new else 0 }}" data-rank="{{ p.rank }}" data-day-rank="{{ p.day_rank }}" data-text="{{ (p.title ~ ' ' ~ p.authors|join(' '))|lower }}">
   <div class="paper-head">
-    {% if rank %}<span class="rank mono">{{ rank }}</span>{% endif %}
+    <span class="rank mono">{{ p.day_rank }}</span>
     {{ meter(p) }}
     <h3><a href="{{ p.url }}">{{ p.title }}</a>{% if p.is_new %} <span class="new-mark" title="In the latest listing">new</span>{% endif %}</h3>
   </div>
@@ -141,7 +143,7 @@ summary { font-family: var(--sans); font-size: .8rem; color: var(--accent); curs
     </div>
     <nav class="toc">
       {% for s in sections %}<a href="#sec-{{ s.key }}">{{ s.title }}</a>{% endfor %}
-      <a href="#all">Everything, ranked</a>
+      <a href="#all">The full listing, ranked</a>
     </nav>
   </div>
 
@@ -157,12 +159,12 @@ summary { font-family: var(--sans); font-size: .8rem; color: var(--accent); curs
   </div>
 
   <section id="all">
-    <header><h2>Everything in the last {{ run.window_days }} days, ranked</h2></header>
+    <header><h2>Everything in the listing, ranked</h2></header>
     <div class="filters" role="search">
       <input type="search" id="q" placeholder="Filter by title or author" aria-label="Filter by title or author">
       <select id="date" aria-label="Listing date">
-        <option value="">All listings</option>
-        {% for d, label, n in run.dates %}<option value="{{ d }}">{{ label }} ({{ n }})</option>{% endfor %}
+        {% for d, label, n in run.dates %}<option value="{{ d }}"{{ ' selected' if d == run.latest else '' }}>{{ label }} ({{ n }}){{ ' — latest' if d == run.latest else '' }}</option>{% endfor %}
+        <option value="">Whole week ({{ run.n_total }})</option>
       </select>
       <div class="cat-filters" aria-label="Categories">
         {% for c in run.categories %}<label><input type="checkbox" value="{{ c }}" checked>{{ c }}</label>{% endfor %}
@@ -170,7 +172,7 @@ summary { font-family: var(--sans); font-size: .8rem; color: var(--accent); curs
       <span class="count" id="count"></span>
     </div>
     <div id="list">
-      {% for p in listed %}{{ paper(p, loop.index) }}{% endfor %}
+      {% for p in listed %}{{ paper(p) }}{% endfor %}
     </div>
   </section>
 </main>
@@ -189,12 +191,23 @@ summary { font-family: var(--sans); font-size: .8rem; color: var(--accent); curs
       var ok = (!text || r.dataset.text.indexOf(text) >= 0) && (!d || r.dataset.date === d) &&
         r.dataset.cats.split(" ").some(function (c) { return cats.indexOf(c) >= 0; });
       r.hidden = !ok; if (ok) n++;
+      // One day: rank within that day. Whole week: rank within the week.
+      r.querySelector(".rank").textContent = d ? r.dataset.dayRank : r.dataset.rank;
     });
     count.textContent = n + " shown";
   }
+  // A link to a paper hidden by the day filter switches to that paper's day.
+  function reveal() {
+    var t = location.hash && document.getElementById(location.hash.slice(1));
+    if (t && t.classList.contains("paper") && t.hidden) {
+      q.value = ""; date.value = t.dataset.date; boxes.forEach(function (b) { b.checked = true; });
+      apply(); t.scrollIntoView();
+    }
+  }
   [q, date].forEach(function (el) { el.addEventListener("input", apply); });
   boxes.forEach(function (b) { b.addEventListener("change", apply); });
-  apply();
+  window.addEventListener("hashchange", reveal);
+  apply(); reveal();
 })();
 </script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>

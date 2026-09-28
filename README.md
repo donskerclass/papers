@@ -49,7 +49,7 @@ open site/index.html
 ## Daily email
 
 After each nightly run the workflow emails the day's page: the four highlight
-sections with abstracts and the top of the week's list in the body, and the
+sections with abstracts and the top of the latest listing's ranked list in the body, and the
 full page attached as `papers-YYYY-MM-DD.html` (dated by arXiv listing) for the
 record. It is sent through Resend or Gmail (see below); pushes that only
 edit the profile don't send mail. A manual run sends mail only if "Also send the
