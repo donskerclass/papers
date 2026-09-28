@@ -208,8 +208,11 @@ def fetch_background(categories: list[str], days: int = 730, per_window: int = 1
     cat_q = "(" + " OR ".join(f"cat:{c}" for c in categories) + ")"
     rows: dict[str, dict] = {}
     if BACKGROUND_FILE.exists():
-        rows = {r["arxiv"]: r for r in read_jsonl(BACKGROUND_FILE)}
-        log(f"background: {len(rows)} cached")
+        # Keep only cached papers still in the watched categories, so dropping a
+        # category from the config drops it from the background too.
+        rows = {r["arxiv"]: r for r in read_jsonl(BACKGROUND_FILE)
+                if set(r.get("categories", [])) & set(categories)}
+        log(f"background: {len(rows)} cached in {', '.join(categories)}")
     starts = sorted(rng.sample(range(min_back, days), windows))
     for k, back in enumerate(starts):
         d0 = today - dt.timedelta(days=back)
