@@ -4,9 +4,11 @@ on:
   schedule:
     # arXiv announces at 20:00 US Eastern, Sunday to Thursday evenings, i.e.
     # 00:00-01:00 UTC Monday to Friday. Run a little after that. GitHub's
-    # schedule is best effort (it silently dropped the first Monday run), so
-    # there are backup times; the `check` job makes a backup exit early once
-    # the day's listing is already live. Off-the-hour minutes are dropped less.
+    # schedule is best effort, so there are backup times; the `check` job makes
+    # a backup exit early once the day's listing is already live. Off-the-hour
+    # minutes are dropped less. Never put [skip ci] on a commit that edits these
+    # lines: the schedule failed to register until the workflow was disabled and
+    # re-enabled and this file was pushed again normally.
     - cron: "17 2 * * 1-5"
     - cron: "37 3 * * 1-5"
     - cron: "23 6 * * 1-5"
