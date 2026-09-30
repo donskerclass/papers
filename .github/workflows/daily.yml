@@ -8,7 +8,10 @@ on:
     # a backup exit early once the day's listing is already live. Off-the-hour
     # minutes are dropped less. Never put [skip ci] on a commit that edits these
     # lines: the schedule failed to register until the workflow was disabled and
-    # re-enabled and this file was pushed again normally.
+    # re-enabled and this file was pushed again normally. Even then, no scheduled
+    # run has ever fired for this repo, so an external cron (cron-job.org; see
+    # README, "Schedule") calls workflow_dispatch with scheduled=true. These
+    # crons stay as a harmless backup: whichever run comes second exits early.
     - cron: "17 2 * * 1-5"
     - cron: "37 3 * * 1-5"
     - cron: "23 6 * * 1-5"
@@ -16,6 +19,10 @@ on:
     inputs:
       send_email:
         description: "Also send the email for this run"
+        type: boolean
+        default: false
+      scheduled:
+        description: "Behave like a scheduled run (used by the external cron): skip if today's listing is live, email only if new"
         type: boolean
         default: false
   push:
@@ -32,7 +39,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # For scheduled runs: is the live page already showing today's listing (arXiv
+  # For scheduled runs (native or external): is the live page already showing today's listing (arXiv
   # labels each listing with the UTC date of its announcement)?
   check:
     runs-on: ubuntu-latest
@@ -42,9 +49,9 @@ jobs:
     steps:
       - id: live
         run: |
-          latest=$(curl -sf --retry 3 https://donskerclass.github.io/papers/papers.json | python3 -c 'import json,sys; print(json.load(sys.stdin)["run"]["latest"])' || echo none)
+          latest=$(curl -sf --retry 3 -H 'Cache-Control: no-cache' "https://donskerclass.github.io/papers/papers.json?t=$(date +%s)" | python3 -c 'import json,sys; print(json.load(sys.stdin)["run"]["latest"])' || echo none)
           echo "latest=$latest" >> "$GITHUB_OUTPUT"
-          if [ "${{ github.event_name }}" = schedule ] && [ "$latest" = "$(date -u +%F)" ]; then
+          if [ "${{ github.event_name == 'schedule' || inputs.scheduled }}" = true ] && [ "$latest" = "$(date -u +%F)" ]; then
             echo "Today's listing is already live; nothing to do."
             echo "go=false" >> "$GITHUB_OUTPUT"
           else
@@ -131,7 +138,7 @@ jobs:
   email:
     needs: [check, build, deploy]
     if: >-
-      (github.event_name == 'schedule' && needs.build.outputs.latest != needs.check.outputs.live_latest)
+      ((github.event_name == 'schedule' || inputs.scheduled) && needs.build.outputs.latest != needs.check.outputs.live_latest)
       || inputs.send_email
     runs-on: ubuntu-latest
     env:

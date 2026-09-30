@@ -74,6 +74,33 @@ app-passwords page available):
    `--repo donskerclass/papers`): the Gmail address, the destination, and the
    16-character app password.
 
+## Schedule
+
+GitHub's own `schedule` trigger has never fired for this repo, so the nightly
+run is started by [cron-job.org](https://cron-job.org) (free), which calls the
+workflow's `workflow_dispatch` endpoint with `scheduled: true`. That input makes
+the run behave like a scheduled one: it exits early if today's listing is
+already live and emails only a listing that is new. The native crons in
+`daily.yml` stay as a backup; a second run on the same day does nothing.
+
+One-time setup:
+
+1. Create a fine-grained token at <https://github.com/settings/personal-access-tokens/new>:
+   repository access "Only select repositories" → `donskerclass/papers`,
+   permission **Actions: Read and write** (nothing else). Note the expiry date;
+   the job starts failing with 401 once it passes.
+2. At cron-job.org, create a job:
+   - URL `https://api.github.com/repos/donskerclass/papers/actions/workflows/daily.yml/dispatches`
+   - Schedule: custom, Mon–Fri at 02:47 and 05:47, timezone UTC
+   - Advanced → request method **POST**, headers
+     `Accept: application/vnd.github+json`,
+     `Authorization: Bearer <token>`, `X-GitHub-Api-Version: 2022-11-28`,
+     body `{"ref":"main","inputs":{"scheduled":"true"}}`
+   - Notify on failure. A successful call returns HTTP 204.
+
+arXiv announces at 00:00–01:00 UTC, so the 02:47 call normally does the work
+and the 05:47 one exits early (it catches days when arXiv's feed was late).
+
 ## Optional API keys
 
 Everything works without keys. Abstract lookups use arXiv, Crossref and
