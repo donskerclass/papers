@@ -33,7 +33,8 @@ def build_sections(papers: list[dict], per_section: int) -> list[dict]:
     return out
 
 
-def render(papers: list[dict], profile: dict, cfg: dict, library_meta: dict | None) -> None:
+def render(papers: list[dict], profile: dict, cfg: dict, library_meta: dict | None,
+           expected: tuple[str, list[str]] | None = None) -> None:
     latest = max(p["announced"] for p in papers)
     for p in papers:
         p["is_new"] = p["announced"] == latest
@@ -67,6 +68,12 @@ def render(papers: list[dict], profile: dict, cfg: dict, library_meta: dict | No
         "background_n": (library_meta or {}).get("n_background", "?"),
         "library_auc": (library_meta or {}).get("tfidf_heldout_auc_arxiv_only"),
     }
+    # Papers arXiv's RSS feed lists for the latest listing that the harvest
+    # hasn't seen yet; the workflow reruns while this is above zero.
+    if expected:
+        run["rss_latest"], ids = expected
+        have = {p["arxiv"] for p in papers if p["is_new"]}
+        run["n_missing"] = sum(a not in have for a in ids) if run["rss_latest"] == latest else len(ids)
     env = Environment(loader=PackageLoader("paperboard", "templates"), autoescape=select_autoescape())
     ctx = {"site": cfg["site"], "run": run, "profile": profile}
     SITE.mkdir(parents=True, exist_ok=True)

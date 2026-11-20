@@ -8,10 +8,11 @@ on:
     # a backup exit early once the day's listing is already live. Off-the-hour
     # minutes are dropped less. Never put [skip ci] on a commit that edits these
     # lines: the schedule failed to register until the workflow was disabled and
-    # re-enabled and this file was pushed again normally. Even then, no scheduled
-    # run has ever fired for this repo, so an external cron (cron-job.org; see
+    # re-enabled and this file was pushed again normally. Even now, scheduled
+    # runs start about 6.5 hours late, so an external cron (cron-job.org; see
     # README, "Schedule") calls workflow_dispatch with scheduled=true. These
-    # crons stay as a harmless backup: whichever run comes second exits early.
+    # crons stay as a backup that also finishes a listing arXiv's feed hadn't
+    # fully filled in yet; otherwise they exit early.
     - cron: "17 2 * * 1-5"
     - cron: "37 3 * * 1-5"
     - cron: "23 6 * * 1-5"
@@ -39,20 +40,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # For scheduled runs (native or external): is the live page already showing today's listing (arXiv
-  # labels each listing with the UTC date of its announcement)?
+  # For scheduled runs (native or external): is the live page already showing
+  # today's complete listing? arXiv labels each listing with the UTC date of its
+  # announcement. arXiv's OAI feed fills a listing in over a few hours, so a run
+  # soon after the announcement often sees only part of it; the build records
+  # how many papers the RSS feed lists that the harvest hadn't seen yet
+  # (run.n_missing), and later runs rebuild until that reaches zero.
   check:
     runs-on: ubuntu-latest
     outputs:
       live_latest: ${{ steps.live.outputs.latest }}
+      live_n_new: ${{ steps.live.outputs.n_new }}
       go: ${{ steps.live.outputs.go }}
     steps:
       - id: live
         run: |
-          latest=$(curl -sf --retry 3 -H 'Cache-Control: no-cache' "https://donskerclass.github.io/papers/papers.json?t=$(date +%s)" | python3 -c 'import json,sys; print(json.load(sys.stdin)["run"]["latest"])' || echo none)
+          read -r latest n_new n_missing < <(curl -sf --retry 3 -H 'Cache-Control: no-cache' "https://donskerclass.github.io/papers/papers.json?t=$(date +%s)" \
+            | python3 -c 'import json,sys; r=json.load(sys.stdin)["run"]; print(r["latest"], r["n_new"], r.get("n_missing", 0))' || echo none 0 0)
           echo "latest=$latest" >> "$GITHUB_OUTPUT"
-          if [ "${{ github.event_name == 'schedule' || inputs.scheduled }}" = true ] && [ "$latest" = "$(date -u +%F)" ]; then
-            echo "Today's listing is already live; nothing to do."
+          echo "n_new=$n_new" >> "$GITHUB_OUTPUT"
+          echo "live: listing $latest, $n_new new, $n_missing not yet in arXiv's OAI feed"
+          if [ "${{ github.event_name == 'schedule' || inputs.scheduled }}" = true ] && [ "$latest" = "$(date -u +%F)" ] && [ "$n_missing" = 0 ]; then
+            echo "Today's listing is already live and complete; nothing to do."
             echo "go=false" >> "$GITHUB_OUTPUT"
           else
             echo "go=true" >> "$GITHUB_OUTPUT"
@@ -64,6 +73,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       latest: ${{ steps.latest.outputs.latest }}
+      n_new: ${{ steps.latest.outputs.n_new }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -106,6 +116,7 @@ jobs:
         id: latest
         run: |
           echo "latest=$(jq -r .run.latest site/papers.json)" >> "$GITHUB_OUTPUT"
+          echo "n_new=$(jq -r .run.n_new site/papers.json)" >> "$GITHUB_OUTPUT"
           mkdir -p email
           mv site/email.html site/email_subject.txt email/
           cp site/index.html "email/papers-$(jq -r .run.latest site/papers.json).html"
@@ -133,12 +144,14 @@ jobs:
   # Emails the day's page to me after nightly runs (not after pushes that only
   # edit the profile). Needs three repository secrets; see README, "Daily email".
   # Skipped quietly if they aren't set.
-  # Scheduled runs email only a listing that is newer than what was live
-  # (if arXiv's feed hadn't updated yet, a later backup run picks it up).
+  # Scheduled runs email only a listing that is newer than what was live (if
+  # arXiv's feed hadn't updated yet, a later backup run picks it up), or the
+  # same listing again, marked as updated, once a rerun has found more of it.
   email:
     needs: [check, build, deploy]
     if: >-
-      ((github.event_name == 'schedule' || inputs.scheduled) && needs.build.outputs.latest != needs.check.outputs.live_latest)
+      ((github.event_name == 'schedule' || inputs.scheduled) && (needs.build.outputs.latest != needs.check.outputs.live_latest
+        || fromJSON(needs.build.outputs.n_new || '0') > fromJSON(needs.check.outputs.live_n_new || '0')))
       || inputs.send_email
     runs-on: ubuntu-latest
     env:
@@ -151,8 +164,13 @@ jobs:
           path: email
 
       - id: msg
+        env:
+          UPDATED: ${{ needs.build.outputs.latest == needs.check.outputs.live_latest && needs.build.outputs.n_new != needs.check.outputs.live_n_new }}
+          WAS: ${{ needs.check.outputs.live_n_new }}
         run: |
-          echo "subject=$(cat email/email_subject.txt)" >> "$GITHUB_OUTPUT"
+          subject=$(cat email/email_subject.txt)
+          if [ "$UPDATED" = true ]; then subject="${subject%)}; was $WAS) [updated]"; fi
+          echo "subject=$subject" >> "$GITHUB_OUTPUT"
           echo "attachment=$(ls email/papers-*.html)" >> "$GITHUB_OUTPUT"
 
       # Option 1: Resend (free tier), used when RESEND_API_KEY is set. Without a

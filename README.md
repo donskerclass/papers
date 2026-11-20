@@ -76,12 +76,21 @@ app-passwords page available):
 
 ## Schedule
 
-GitHub's own `schedule` trigger has never fired for this repo, so the nightly
-run is started by [cron-job.org](https://cron-job.org) (free), which calls the
-workflow's `workflow_dispatch` endpoint with `scheduled: true`. That input makes
-the run behave like a scheduled one: it exits early if today's listing is
-already live and emails only a listing that is new. The native crons in
-`daily.yml` stay as a backup; a second run on the same day does nothing.
+GitHub's own `schedule` trigger fires about six and a half hours late for this
+repo, so the nightly run is started by [cron-job.org](https://cron-job.org)
+(free), which calls the workflow's `workflow_dispatch` endpoint with
+`scheduled: true`. That input makes the run behave like a scheduled one: it
+exits early if today's listing is already live and complete, and emails only a
+listing that is new or has grown. The native crons in `daily.yml` stay as a
+late backup.
+
+arXiv's OAI-PMH feed fills a listing in over a few hours after the 20:00 ET
+announcement, so the first run often catches only 55–90% of it. Each build
+counts the papers arXiv's RSS feed lists for the listing that the harvest
+hasn't seen yet (`run.n_missing` in `papers.json`); while that is above zero,
+later runs rebuild, and when a rebuild finds more papers the email goes out
+again with `[updated]` in the subject. If the RSS feed can't be read, a run
+treats the listing as complete.
 
 One-time setup:
 

@@ -176,3 +176,37 @@ def fetch(categories: list[str], window_days: int, log=print) -> list[dict]:
             papers.append(p)
     log(f"{len(records)} records, {len(papers)} announced since {first:%Y-%m-%d}")
     return papers
+
+
+def expected_listing(categories: list[str], log=print) -> tuple[str, list[str]] | None:
+    """(date, ids) of the latest listing according to arXiv's RSS feed, or None
+    if the feed can't be read.
+
+    OAI-PMH fills in a listing gradually over the hours after it is announced
+    (a run soon after 20:00 ET typically sees 55-90% of it), while the RSS feed
+    is complete from the moment of the announcement. The workflow compares the
+    two to tell whether a later run would find more papers. Only ids that
+    `listing_dates` can date to this listing are kept: all new submissions,
+    and cross-lists whose ids are at least the lowest new id (cross-lists of
+    older papers are the accepted gap described above).
+    """
+    url = "https://rss.arxiv.org/rss/" + "+".join(categories)
+    r = resolve._get(url, tries=2, pause=10)
+    if r is None:
+        log("arXiv RSS unreachable; can't tell whether the listing is complete")
+        return None
+    ch = ET.fromstring(r.content if hasattr(r, "content") else r.text.encode()).find("channel")
+    when = email.utils.parsedate_to_datetime(ch.findtext("pubDate", ""))
+    by_type: dict[str, list[str]] = {"new": [], "cross": []}
+    for it in ch.findall("item"):
+        kind = it.findtext("{http://arxiv.org/schemas/atom}announce_type", "").strip()
+        aid = it.findtext("link", "").rstrip("/").rsplit("/", 1)[-1]
+        if kind in by_type and _id_key(aid):
+            by_type[kind].append(aid)
+    if not by_type["new"]:
+        return None
+    low = min(_id_key(a) for a in by_type["new"])
+    ids = by_type["new"] + [a for a in by_type["cross"] if _id_key(a) >= low]
+    # arXiv dates a listing by its own calendar date (the feed's pubDate is
+    # midnight US Eastern of that day).
+    return f"{when.date():%Y-%m-%d}", ids

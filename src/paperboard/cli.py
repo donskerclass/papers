@@ -35,11 +35,12 @@ def cmd_run(args) -> None:
         cache.write_text(json.dumps(papers))
     if not papers:
         sys.exit("no papers fetched")
+    expected = None if args.reuse_fetch else arxiv_source.expected_listing(ax["categories"], log=log)
     t0 = time.time()
     scoring.score(papers, prof, cfg, log=log)
     log(f"scored in {time.time() - t0:.0f}s")
     meta = Library().meta if Library.available() else None
-    render.render(papers, prof, cfg, meta)
+    render.render(papers, prof, cfg, meta, expected)
     log("site written")
 
 
